@@ -1,15 +1,20 @@
 <div class="container p-3">
     <h4>Matches</h4>
-    <div class="alert alert-danger" role="alert" *ngIf="!loading && (!allSeries || !allSeries.length)">No Active Matches available</div>
+    <div class="alert alert-danger" role="alert" *ngIf="!loading && (!allSeries || !allSeries.length)">
+        No Active Matches available
+    </div>
 
-        <div class="overlay" *ngIf="loading">
-            <div class="spinner" >
-                <mat-spinner ></mat-spinner>
-            </div>
+    <div class="overlay" *ngIf="loading">
+        <div class="spinner">
+            <mat-spinner></mat-spinner>
         </div>
-        @if(history){
-            <button mat-flat-button color="primary" class="m-2" (click)="getAllSeries(true, !viewFullList); viewFullList=!viewFullList" >Show {{!viewFullList?'More':'Less'}}</button>
-        }
+    </div>
+    @if(history){
+    <button mat-flat-button color="primary" class="m-2"
+        (click)="getAllSeries(true, !viewFullList); viewFullList = !viewFullList">
+        Show {{ !viewFullList ? "More" : "Less" }}
+    </button>
+    }
     <div class="border p-3 d-flex match-container" *ngIf="!loading && allSeries && allSeries.length">
         <div class="card p-2 cursor-pointer w-20" *ngFor="let match of allSeries"
             (click)="goToPrediction(match.id, match.active)">
@@ -41,20 +46,28 @@
             </div>
         </div>
     </div>
-    <button mat-flat-button class="m-2" color="primary" [disabled]="history" (click)="getAllSeries(true);history=true;">
+    <button mat-flat-button class="m-2" color="primary" [disabled]="history"
+        (click)="getAllSeries(true); history = true">
         History
     </button>
-    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false);history = false;">
+    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false); history = false">
         Current Matches
     </button>
-    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false);history = false;" routerLink="season-points-table">
+    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false); history = false"
+        routerLink="season-points-table">
         Season Points Table
     </button>
-    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false);history = false;" routerLink="match-results">
+    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false); history = false"
+        routerLink="match-results">
         Match Results
     </button>
-    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false);history = false;" routerLink="match-summary">
+    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false); history = false"
+        routerLink="match-summary">
         Correct Predictions
+    </button>
+    <button mat-flat-button class="m-2" color="primary" (click)="getAllSeries(false); history = false"
+        routerLink="rules">
+        Rules
     </button>
 </div>
 

@@ -7,6 +7,7 @@ import { PointsTableComponent } from './points-table/points-table.component';
 import { SeasonPointsTableComponent } from './season-points-table/season-points-table.component';
 import { ResultsComponent } from './results/results.component';
 import { SummaryComponent } from './summary/summary.component';
+import { RulesComponent } from './rules/rules.component';
 
 const routes: Routes = [
   {
@@ -34,6 +35,10 @@ const routes: Routes = [
       {
         path: 'match-summary',
         component: SummaryComponent,
+      },
+      {
+        path: 'rules',
+        component: RulesComponent,
       },
     ],
   },

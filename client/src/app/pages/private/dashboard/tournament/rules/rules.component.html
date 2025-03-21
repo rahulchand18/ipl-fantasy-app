@@ -1,0 +1,69 @@
+<h1>Rules</h1>
+<ol class="mb-3">
+    <li>Match Predictions will be activated at 8 AM and will be closed before 5 minutes of toss.</li>
+    <li>User can change their predictions between this time.</li>
+    <li>Per match fee: Rs. 10</li>
+    <li>Points Distribution:
+        <table class="table table-bordered w-50">
+            <thead>
+                <tr>
+                    <th>Prediction Factor</th>
+                    <th>Points</th>
+                </tr>
+
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Toss Winner</td>
+                    <td>1</td>
+                </tr>
+                <tr>
+                    <td>Match Winner</td>
+                    <td>5</td>
+                </tr>
+                <tr>
+                    <td>Most Runs</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Most Wickets</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Most Catches</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>Most Sixes</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+        ***If points are same for multiple players, their time of prediction will be considered
+    </li>
+    <li>Prize will be declared according to number of players:
+        <table class="table table-bordered w-50">
+            <thead>
+                <tr>
+                    <th>No. of Players</th>
+                    <th>First</th>
+                    <th>Second</th>
+                    <th>Third</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let total of breakdowns | keyvalue: originalOrder">
+                    <td class="w-10">{{ total.key }}</td>
+                    <td class="w-10">{{ total.value.first }}</td>
+                    <td class="w-10">{{ total.value.second }}</td>
+                    <td class="w-10">{{ total.value.third }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </li>
+    <li>
+        Load Esewa and write 'MCT-IPL-2025 **your name**'
+        <img src="../../../../../../assets/images/qr.png" alt="">
+    </li>
+
+</ol>
