@@ -91,6 +91,8 @@
                     {{match.active?'Deactivate':'Activate'}}
                 </button>
                 <button mat-raised-button color="accent" class="m-1" (click)="calculate(match.id)">Calculate</button>
+                <button mat-button color="primary" (click)="updateCompleteStatus(match._id, !match.history, match.id)"
+                    *ngIf="!match.history">Complete</button>
             </div>
         </div>
     </div>
