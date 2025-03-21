@@ -338,51 +338,22 @@ async function calculateBalance(matchId) {
 }
 
 function balanceBreakdown(total) {
-  let returnObj = {};
-  switch (total) {
-    case 100:
-      returnObj = { first: 75, second: -25, third: -25 };
-      break;
-    case 125:
-      returnObj = { first: 75, second: 0, third: -25 };
-      break;
-    case 150:
-      returnObj = { first: 100, second: 0, third: -25 };
-      break;
+  const breakdowns = {
+    40: { first: 30, second: -10, third: -10 },
+    50: { first: 30, second: 0, third: -10 },
+    60: { first: 40, second: 0, third: -10 },
+    70: { first: 40, second: 10, third: -10 },
+    80: { first: 40, second: 10, third: 0 },
+    90: { first: 50, second: 10, third: 0 },
+    100: { first: 50, second: 20, third: 0 },
+    110: { first: 60, second: 20, third: 0 },
+    120: { first: 70, second: 20, third: 0 },
+    130: { first: 70, second: 30, third: 0 },
+    140: { first: 80, second: 30, third: 0 },
+    150: { first: 90, second: 30, third: 0 },
+  };
 
-    case 175:
-      returnObj = { first: 100, second: 25, third: -25 };
-      break;
-
-    case 200:
-      returnObj = { first: 100, second: 25, third: 0 };
-      break;
-
-    case 225:
-      returnObj = { first: 125, second: 25, third: 0 };
-      break;
-
-    case 250:
-      returnObj = { first: 125, second: 50, third: 0 };
-      break;
-
-    case 275:
-      returnObj = { first: 150, second: 50, third: 0 };
-      break;
-
-    case 300:
-      returnObj = { first: 175, second: 50, third: 0 };
-      break;
-
-    case 325:
-      returnObj = { first: 175, second: 75, third: 0 };
-      break;
-
-    case 350:
-      returnObj = { first: 200, second: 75, third: 0 };
-      break;
-  }
-  return returnObj;
+  return breakdowns[total] || {};
 }
 
 const getPrediction = async (req, res) => {
