@@ -1,32 +1,35 @@
 <div class="container" *ngIf="results && results.length">
     <table class="table table-striped table-bordered">
         <thead>
-                <tr>
-                    <th class="w-10">S.N.</th>
-                    <th>Match</th>
-                    <th>Toss</th>
-                    <th>Winner</th>
-                    <th>Man of the match</th>
-                    <th>Most Runs</th>
-                    <th>Most Catches</th>
-                    <th>Most Wickets</th>
-                    <th>Most Sixes</th>
-                </tr>
+            <tr>
+                <th class="w-10">S.N.</th>
+                <th>Match</th>
+                <th>Toss</th>
+                <th>Winner</th>
+                <th>Man of the Match</th>
+                <th>Most Runs</th>
+                <th>Most Catches</th>
+                <th>Most Wickets</th>
+                <th>Most Sixes</th>
+            </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let result of results; let i = index" class="row-class">
-                @if(result.history){
-                    <td>{{i+1}}</td>
-                    <td>{{result.id}}</td>
-                    <td>{{result.tossWinner}}</td>
-                <td>{{result.matchWinner}}</td>
-                <td>{{result.manOfTheMatch}}</td>
-                <td><span *ngFor="let item of result.mostRuns; let j=index">{{item}}{{j+1===result.mostRuns.length?'':', '}}</span></td>
-                <td><span *ngFor="let item of result.mostCatches; let j=index">{{item}}{{j+1===result.mostCatches.length?'':', '}}</span></td>
-                <td><span *ngFor="let item of result.mostWickets; let j=index">{{item}}{{j+1===result.mostWickets.length?'':', '}}</span></td>
-                <td><span *ngFor="let item of result.mostSixes; let j=index">{{item}}{{j+1===result.mostSixes.length?'':', '}}</span></td>
-            }
-            </tr>
+            <ng-container *ngFor="let result of results; let i = index">
+                <tr *ngIf="result.history" class="row-class">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ result.id }}</td>
+                    <td>{{ result.tossWinner }}</td>
+                    <td>{{ result.matchWinner }}</td>
+                    <td>{{ result.manOfTheMatch }}</td>
+                    <td>{{ formatArray(result.mostRuns) }}</td>
+                    <td>{{ formatArray(result.mostCatches) }}</td>
+                    <td>{{ formatArray(result.mostWickets) }}</td>
+                    <td>{{ formatArray(result.mostSixes) }}</td>
+                </tr>
+            </ng-container>
         </tbody>
     </table>
+</div>
+<div class="alert alert-warning text-center mt-3" *ngIf="!results || results.length === 0">
+    No match results available.
 </div>

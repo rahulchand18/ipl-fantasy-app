@@ -1,5 +1,53 @@
-.row-class {
-  td {
-    font-size: 12px;
+/* Table Container */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Table Design */
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table th {
+  background-color: #343a40 !important;
+  color: #ffffff !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Medal & Player Image */
+.player-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.medal-img {
+  width: 25px;
+  height: 25px;
+  margin-left: 8px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .table {
+    font-size: 14px;
+  }
+
+  .player-img,
+  .medal-img {
+    width: 30px;
+    height: 30px;
   }
 }

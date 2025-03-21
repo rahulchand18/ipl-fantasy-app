@@ -1,73 +1,95 @@
-<h1>Rules</h1>
-<ol class="mb-3">
-    <li>Match Predictions will be activated at 8 AM and will be closed before 5 minutes of toss.</li>
-    <li>User can change their predictions between this time.</li>
-    <li>Per match fee: Rs. 10</li>
-    <li>Points Distribution:
-        <table class="table table-bordered w-50">
-            <thead>
-                <tr>
-                    <th>Prediction Factor</th>
-                    <th>Points</th>
-                </tr>
+<div class="container mt-4">
+    <h1 class="mb-3 text-primary font-weight-bold">Game Rules</h1>
 
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Toss Winner</td>
-                    <td>1</td>
-                </tr>
-                <tr>
-                    <td>Match Winner</td>
-                    <td>5</td>
-                </tr>
-                <tr>
-                    <td>Man of the Match</td>
-                    <td>5</td>
-                </tr>
-                <tr>
-                    <td>Most Runs</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>Most Wickets</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>Most Catches</td>
-                    <td>2</td>
-                </tr>
-                <tr>
-                    <td>Most Sixes</td>
-                    <td>3</td>
-                </tr>
-            </tbody>
-        </table>
-        ***If points are same for multiple players, their time of prediction will be considered
-    </li>
-    <li>Prize will be declared according to number of players:
-        <table class="table table-bordered w-50">
-            <thead>
-                <tr>
-                    <th>No. of Players</th>
-                    <th>First</th>
-                    <th>Second</th>
-                    <th>Third</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let total of breakdowns | keyvalue: originalOrder">
-                    <td class="w-10">{{ total.key }}</td>
-                    <td class="w-10">{{ total.value.first }}</td>
-                    <td class="w-10">{{ total.value.second }}</td>
-                    <td class="w-10">{{ total.value.third }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </li>
-    <li>
-        Load Esewa and write 'MCT-IPL-2025 **your name**'
-        <img src="../../../../../../assets/images/qr.png" alt="">
-    </li>
-
-</ol>
+    <ol class="mb-3">
+        <li>
+            <strong>Match predictions</strong> will be available from <span class="text-success">8 AM</span> and will
+            close
+            <span class="text-danger">5 minutes before the toss</span>.
+        </li>
+        <li>
+            Users can <strong>modify</strong> their predictions within this time frame.
+        </li>
+        <li>
+            <strong>Entry Fee per Match:</strong> <span class="text-primary">Rs. 10</span>
+        </li>
+        <li>
+            <strong>Points Distribution:</strong>
+            <div class="table-responsive mt-2">
+                <table class="table table-bordered text-center shadow-sm">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="bg-secondary text-white">Prediction Factor</th>
+                            <th class="bg-secondary text-white">Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Toss Winner</strong></td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Match Winner</strong></td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Man of the Match</strong></td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Most Runs</strong></td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Most Wickets</strong></td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Most Catches</strong></td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Most Sixes</strong></td>
+                            <td>3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small mt-2">
+                <strong>Note:</strong> In case of a tie, the prediction submitted first will be considered.
+            </p>
+        </li>
+        <li>
+            <strong>Prize Distribution:</strong> Based on the number of participants:
+            <div class="table-responsive mt-2">
+                <table class="table table-bordered text-center shadow-sm">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th class="bg-secondary text-white">No. of Players</th>
+                            <th class="bg-secondary text-white">First Prize</th>
+                            <th class="bg-secondary text-white">Second Prize</th>
+                            <th class="bg-secondary text-white">Third Prize</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let total of breakdowns | keyvalue: originalOrder">
+                            <td><strong>{{ total.key }}</strong></td>
+                            <td class="text-success"><strong>{{ total.value.first }}</strong></td>
+                            <td class="text-info"><strong>{{ total.value.second }}</strong></td>
+                            <td class="text-warning"><strong>{{ total.value.third }}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </li>
+        <li>
+            <strong>Payment Instructions:</strong>
+            <p>
+                Load <span class="text-success font-weight-bold">Esewa</span> and mention
+                <span class="p-2">"MCT-IPL-2025 [Your Name]"</span> in the payment reference.
+            </p>
+            <img src="../../../../../../assets/images/qr.png" alt="QR Code" class="img-fluid mt-2 shadow-lg rounded"
+                style="max-width: 300px;">
+        </li>
+    </ol>
+</div>

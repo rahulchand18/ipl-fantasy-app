@@ -1,18 +1,28 @@
-.w-30 {
-  width: 300px;
+/* Form Layout for Larger Screens */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
 }
+
+/* For Larger Screens (Laptops and Desktops) */
+@media (min-width: 768px) {
+  .grid-layout {
+    grid-template-columns: repeat(2, 1fr); /* Two columns layout */
+  }
+}
+
+/* For Small Screens (Mobile) */
+@media (max-width: 767px) {
+  .grid-layout {
+    grid-template-columns: 1fr; /* Single column layout */
+  }
+}
+
+/* Styling for Circle Images */
 .circle {
   border-radius: 50%;
-}
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999; /* ensure it's above other content */
+  overflow: hidden;
+  margin-right: 10px;
 }

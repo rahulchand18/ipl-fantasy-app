@@ -1,27 +1,30 @@
-@if(authService.isLoggedIn){
-<mat-toolbar>
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"></button>
-  <img src="../../../../assets/images/ipl-logo.png" height="50px" alt="" routerLink="" class="cursor-pointer" />
-  <span> Prediction</span>
-  <span class="example-spacer"></span>
-  <div class="d-flex gap-10">
-    <span class="">Balance:<b> Rs. {{ balance }}</b></span>
-    <span>Welcome <b>{{ currentUser.fullName }}</b></span>
-    <img style="border-radius: 50%; border: 0.2px solid black; cursor: pointer"
-      [src]="imageUrl?? '../../../../assets/images/image.png'" height="50" width="50" alt="No Img"
-      [matMenuTriggerFor]="menu" />
+<mat-toolbar class="d-flex justify-content-between align-items-center flex-wrap p-2">
+  <!-- Left Side: Logo & Menu -->
+  <div class="d-flex align-items-center">
+    <img src="../../../../assets/images/ipl-logo.png" height="50" alt="IPL Logo" routerLink="" class="cursor-pointer" />
+    <span class="ml-2 font-weight-bold text-uppercase">Prediction</span>
   </div>
 
-  <button mat-flat-button color="primary" class="example-icon favorite-icon m-2"
-    aria-label="Example icon-button with heart icon" (click)="logout()">
-    Logout
-  </button>
+  <!-- Right Side: Balance, User Info & Logout -->
+  <div class="d-flex align-items-center gap-4">
+    <span class="d-none d-md-inline font-weight-bold">Balance: <b>Rs. {{ balance }}</b></span>
+    <span class="d-none d-md-inline font-weight-bold">Welcome, <b>{{ currentUser.fullName }}</b></span>
+    <img class="rounded-circle border border-dark cursor-pointer user-avatar"
+      [src]="imageUrl ?? '../../../../assets/images/image.png'" height="40" width="40" alt="User Avatar"
+      [matMenuTriggerFor]="menu" />
+    <button mat-flat-button color="primary" class="favorite-icon m-2 d-none d-md-inline" aria-label="Logout button"
+      (click)="logout()">
+      Logout
+    </button>
+  </div>
 </mat-toolbar>
+
+<!-- Mobile View: Show Balance & Logout inside Menu -->
 <mat-menu #menu="matMenu">
-  <button mat-menu-item color="accent" class="change-photo-button" (click)="fileInput.click()">
-    Choose Photo
-  </button>
+  <button mat-menu-item *ngIf="balance">Balance: <b>Rs. {{ balance }}</b></button>
+  <button mat-menu-item *ngIf="currentUser?.fullName">Welcome <b>{{ currentUser.fullName }}</b></button>
+  <button mat-menu-item color="accent" (click)="fileInput.click()">Choose Photo</button>
   <input #fileInput type="file" accept="image/*" (change)="onFileChange(fileInput.files)" style="display: none" />
+  <button mat-menu-item class="text-danger" (click)="logout()">Logout</button>
 </mat-menu>
-}
-<router-outlet></router-outlet>
+<router-outlet />

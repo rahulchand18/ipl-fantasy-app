@@ -1,30 +1,45 @@
-.example-spacer {
-  flex: 1 1 auto;
-}
-.w-20 {
-  width: 320px;
-}
 .match-container {
+  display: flex;
   flex-wrap: wrap;
-  gap: 3px;
+  gap: 20px;
 }
 
-.team1 {
-  display: flex;
-  gap: 5px;
+.match-card {
+  width: 320px;
+  border-radius: 12px;
+  background: #ffffff;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
-.card {
-  font-size: 12px;
+
+.match-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
 }
-.circle {
+
+.team-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
   border-radius: 50%;
 }
-.w-10 {
-  width: fit-content;
+
+.btn-custom {
+  min-width: 180px;
+  font-weight: bold;
+  border-radius: 6px;
 }
-.cursor-pointer {
-  cursor: pointer;
-}
-.align-items-center{
-  align-items: center;
+
+@media (max-width: 768px) {
+  .match-card {
+    width: 100%;
+  }
+
+  .btn-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-custom {
+    width: 90%;
+  }
 }

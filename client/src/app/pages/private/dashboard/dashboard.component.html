@@ -1,113 +1,54 @@
-<!-- <mat-toolbar>
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon"></button>
-  <img src="../../../../assets/images/ipl-logo.png" height="50px" alt="" />
-  <span> Prediction</span>
-  <span class="example-spacer"></span>
-  <div class="d-flex gap-10">
-
-    <span class="">Balance:<b> Rs. {{balance}}</b></span>
-    <span>Welcome <b>{{ currentUser.fullName }}</b></span>
-  </div>
-  <button mat-flat-button color="primary" class="example-icon favorite-icon m-2"
-    aria-label="Example icon-button with heart icon" (click)="logout()">
-    Logout
-  </button>
-</mat-toolbar> -->
-
 <div class="container">
   <div class="card">
-    <div class="card-header w-100 d-flex justify-content-between">
+    <div class="card-header w-100 d-flex flex-wrap justify-content-between align-items-center">
       <h3 class="card-title">Tournaments</h3>
-      <div class="d-flex">
-        <button
-          mat-flat-button
-          color="primary"
-          class="m-1"
-          *ngIf="currentUser.userType === 'admin'"
-          (click)="openCreateForm()"
-        >
+      <div class="d-flex flex-wrap">
+        <button mat-flat-button color="primary" class="m-1" *ngIf="currentUser.userType === 'admin'"
+          (click)="openCreateForm()">
           Create
         </button>
-        <button
-          mat-flat-button
-          color="primary"
-          class="m-1"
-          (click)="joinClicked = !joinClicked"
-        >
+        <button mat-flat-button color="primary" class="m-1" (click)="joinClicked = !joinClicked">
           {{ !joinClicked ? "Join" : "Cancel" }}
         </button>
       </div>
     </div>
     <div class="card-body">
-      <div *ngIf="joinClicked">
-        <mat-form-field class="w-50" appearance="outline">
+      <div *ngIf="joinClicked" class="d-flex flex-wrap align-items-center">
+        <mat-form-field class="w-100 w-md-50 m-1" appearance="outline">
           <mat-label>Tournament Code</mat-label>
-          <input
-            type="text"
-            matInput
-            name="joinCode"
-            [(ngModel)]="tournamentId"
-          />
+          <input type="text" matInput name="joinCode" [(ngModel)]="tournamentId" />
         </mat-form-field>
-        <button
-          mat-flat-button
-          color="primary"
-          class="m-2"
-          [disabled]="!tournamentId"
-          (click)="joinTournament()"
-        >
+        <button mat-flat-button color="primary" class="m-2" [disabled]="!tournamentId" (click)="joinTournament()">
           Join
         </button>
       </div>
-      <div
-        class="btn-group btn-group-toggle"
-        data-toggle="buttons"
-        *ngIf="currentUser.userType === 'admin'"
-      >
+
+      <div class="btn-group btn-group-toggle my-3 d-flex flex-wrap" *ngIf="currentUser.userType === 'admin'">
         <label class="btn btn-secondary active">
-          <input
-            type="radio"
-            name="options"
-            id="option1"
-            autocomplete="off"
-            checked
-            (click)="selected = 'joined'; getAllTournaments()"
-          />
+          <input type="radio" name="options" id="option1" autocomplete="off" checked
+            (click)="selected = 'joined'; getAllTournaments()" />
           Joined
         </label>
         <label class="btn btn-secondary">
-          <input
-            type="radio"
-            name="options"
-            id="option2"
-            autocomplete="off"
-            (click)="selected = 'myCreated'; getAllTournaments()"
-          />
+          <input type="radio" name="options" id="option2" autocomplete="off"
+            (click)="selected = 'myCreated'; getAllTournaments()" />
           Created
         </label>
       </div>
+
       <div class="container p-3 mt-3 w-100">
-        <div
-          class="alert alert-danger"
-          role="alert"
-          *ngIf="!tournaments || !tournaments.length"
-        >
+        <div class="alert alert-danger text-center" role="alert" *ngIf="!tournaments || !tournaments.length">
           No Tournaments
         </div>
-        <div
-          class="card cursor-pointer m-2"
-          *ngFor="let tournament of tournaments"
-          (click)="openTournamentPage(tournament)"
-        >
+        <div class="card cursor-pointer m-2" *ngFor="let tournament of tournaments"
+          (click)="openTournamentPage(tournament)">
           <div class="card-header">
             <h3 class="card-title">{{ tournament.name }}</h3>
             <h4 class="card-sub-title border p-2">
               Join Code: {{ tournament.tournamentId }}
             </h4>
             <div class="card-body">
-              <small *ngIf="selected === 'myCreated'"
-                >{{ tournament.players?.length }} Players Joined</small
-              >
+              <small *ngIf="selected === 'myCreated'">{{ tournament.players?.length }} Players Joined</small>
             </div>
           </div>
         </div>
@@ -116,110 +57,92 @@
   </div>
 </div>
 @if(statements && statements.length){
-
-<div class="container">
+<div class="container mt-4">
   <h4>Statements</h4>
-  <table class="table table-striped table-bordered">
-    <thead>
-      <tr>
-        <th>SN.</th>
-        <th>Remarks</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let statement of statements; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>
-          <span
-            [ngClass]="{
-              'text-danger': statement.action === 'deducted',
-              'text-success': statement.action === 'added'
-            }"
-          >
-            Rs.{{ statement.balance }} {{ statement.action }}</span
-          >
-          Remarks: {{ statement.remarks }}
-        </td>
-        <td>{{ statement.date | date : "hh:mm a dd MMMM, yyyy" }}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-}
-
-<div class="container p-3">
-  <h2>Notifications</h2>
-  <table
-    class="table table-striped table-bordered"
-    *ngIf="notifications && notifications.length"
-  >
-    <thead>
-      <tr>
-        <th>S.No.</th>
-        <th>Message</th>
-        <th>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let notification of notifications; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ notification.message }}</td>
-        <td>
-          {{ notification.sentDate | date : "hh:mm a dd MMMM, yyyy" }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <div *ngIf="!notifications || !notifications.length">
-    <div class="alert alert-danger">No Notifications</div>
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>SN.</th>
+          <th>Remarks</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let statement of statements; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <span [ngClass]="{
+                  'text-danger': statement.action === 'deducted',
+                  'text-success': statement.action === 'added'
+                }">
+              Rs.{{ statement.balance }} {{ statement.action }}</span>
+            Remarks: {{ statement.remarks }}
+          </td>
+          <td>{{ statement.date | date : "hh:mm a dd MMMM, yyyy" }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
-
-@if(currentUser.userType==='admin'){
-
+}
 <div class="container p-3">
-  <table class="table table-striped table-bordered">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Balance</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of allUsers; let i = index">
-        <td>{{ user.fullName }}</td>
-        <td>Rs.{{ user.balance }}</td>
-        <td>
-          <button
-            [disabled]="!user.amount"
-            mat-button
-            color="primary"
-            (click)="updateBalance(user.amount, user.email, 'deducted')"
-          >
-            -
-          </button>
-          <mat-form-field appearance="outline">
-            <input
-              type="number"
-              matInput
-              [(ngModel)]="user.amount"
-              [name]="'amount' + i"
-            />
-          </mat-form-field>
-          <button
-            [disabled]="!user.amount"
-            mat-button
-            color="primary"
-            (click)="updateBalance(user.amount, user.email, 'added')"
-          >
-            +
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <h2>Notifications</h2>
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered" *ngIf="notifications && notifications.length">
+      <thead>
+        <tr>
+          <th>S.No.</th>
+          <th>Message</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let notification of notifications; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ notification.message }}</td>
+          <td>
+            {{ notification.sentDate | date : "hh:mm a dd MMMM, yyyy" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="!notifications || !notifications.length" class="alert alert-danger text-center">
+    No Notifications
+  </div>
 </div>
-
+@if(currentUser.userType === 'admin'){
+<div class="container p-3">
+  <div class="table-responsive">
+    <table class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Balance</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of allUsers; let i = index">
+          <td>{{ user.fullName }}</td>
+          <td>Rs.{{ user.balance }}</td>
+          <td class="d-flex flex-wrap align-items-center">
+            <button [disabled]="!user.amount" mat-button color="primary"
+              (click)="updateBalance(user.amount, user.email, 'deducted')">
+              -
+            </button>
+            <mat-form-field appearance="outline" class="mx-2">
+              <input type="number" matInput [(ngModel)]="user.amount" [name]="'amount' + i" />
+            </mat-form-field>
+            <button [disabled]="!user.amount" mat-button color="primary"
+              (click)="updateBalance(user.amount, user.email, 'added')">
+              +
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 }

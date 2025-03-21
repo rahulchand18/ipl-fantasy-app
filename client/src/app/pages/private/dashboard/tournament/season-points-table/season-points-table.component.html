@@ -5,22 +5,26 @@
       <th>Name</th>
       <th>Matches</th>
       <th>Points</th>
-      <th >Average <button (click)="sortBy()"  class="btn btn-sm btn-outline-primary ml-2" data-toggle="tooltip" data-placement="top" title="Click to sort by avg.">&uarr; &darr;</button></th>
+      <th>
+        Average
+        <button (click)="sortBy('avg')" class="btn btn-sm btn-outline-primary ml-2" data-toggle="tooltip"
+          title="Click to sort by average">
+          {{ sortDirection === 'asc' ? '▲' : '▼' }}
+        </button>
+      </th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let player of table; let i = index">
       <td>{{ i + 1 }}</td>
-      <td>
-        <img class="m-2"
-          [src]="player.img ? authService.getProfileUrl(player.img) : '../../../../../../assets/images/image.png'"
-          alt="" height="50px" width="50px" style="border-radius: 50%; border: 1px solid purple" />
-
-        <strong>{{ player.firstName + " " + player.lastName }}</strong>
+      <td class="d-flex align-items-center">
+        <img class="player-img shadow-sm"
+          [src]="player.img ? authService.getProfileUrl(player.img) : 'assets/images/default.png'" alt="Player Image" />
+        <strong class="ml-2">{{ player.firstName }} {{ player.lastName }}</strong>
       </td>
       <td>{{ player.matches }}</td>
       <td>{{ player.total }}</td>
-      <td>{{ (player.total/player.matches) | number:'1.2-2' }}</td>
+      <td>{{ (player.total / player.matches) | number:'1.2-2' }}</td>
     </tr>
   </tbody>
 </table>

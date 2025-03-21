@@ -1,0 +1,82 @@
+/* Table Container */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Table Design */
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.table th {
+  background-color: #343a40 !important;
+  color: #ffffff !important;
+  font-weight: bold;
+  padding: 0.75rem 1.25rem;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 0.75rem 1.25rem;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9;
+}
+
+/* Hover Effect */
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Player Image Styling */
+.player-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+  border: 2px solid #007bff;
+}
+
+.player-img:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Sorting Button */
+button[ng-click] {
+  font-size: 16px;
+  padding: 0.3rem 0.6rem;
+}
+
+button[ng-click]:hover {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #0056b3;
+}
+
+/* Tooltip Styling */
+.tooltip-inner {
+  background-color: #343a40;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .table {
+    font-size: 14px;
+  }
+
+  .player-img {
+    width: 30px;
+    height: 30px;
+  }
+}

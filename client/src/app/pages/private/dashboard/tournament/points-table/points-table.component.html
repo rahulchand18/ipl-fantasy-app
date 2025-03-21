@@ -1,58 +1,57 @@
 @if(match && !match.active){
 
-  @if(players && players.length){
+<!-- Points Table -->
+@if(players && players.length){
+<h3 class="mb-3 text-primary font-weight-bold">🏆 Points Table</h3>
 
-    <h3>Points Table</h3>
-    
-    <table class="table table-striped table-bordered w-100">
-      <thead class="thead-dark">
-        <tr>
-          <th class="w-10">S.N.</th>
-          <th>Name</th>
-          <th>Points</th>
-          <th *ngIf="match && match.history">Balance</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let player of players; let i = index">
-          <td>
-            <span>{{ i + 1 }}</span>
-          </td>
-          <td>
-            <img [src]="player.img ? authService.getProfileUrl(player.img) : '../../../../../../assets/images/image.png'"
-              alt="" height="50px" width="50px" style="border-radius: 50%; border: 1px solid purple" />
-    
-            <strong> {{ player.fullName }}</strong>
-            <img *ngIf="match.history && i === 0" [src]="'../../../../../../assets/images/gold.png'" height="50px" alt="" />
-            <img *ngIf="match.history && i === 1" [src]="'../../../../../../assets/images/silver.png'" height="50px"
-              alt="" />
-            <img *ngIf="match.history && i === 2" [src]="'../../../../../../assets/images/bronze.png'" height="50px"
-              alt="" />
-          </td>
-          <td>{{ player.player.total }}</td>
-          <td *ngIf="match && match.history" [ngClass]="{
-              'text-danger': player.balance.action === 'deducted',
-              'text-success': player.balance.action === 'added'
-            }">
-            {{ player.balance.action === "deducted" ? "-" : "+" }}Rs.{{
-            player.balance.amount
-            }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  }
-<h3>Predictions</h3>
-@if(predictions && predictions.length){
-
-  <table class="table table-striped table-bordered w-100">
+<div class="table-responsive">
+  <table class="table table-hover table-bordered text-center">
     <thead class="thead-dark">
       <tr>
         <th class="w-10">S.N.</th>
-        <th>Name</th>
-        <th>Toss</th>
-        <th>Winner</th>
-        <th>Man of the match</th>
+        <th>Player</th>
+        <th>Points</th>
+        <th *ngIf="match && match.history">Balance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let player of players; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td class="d-flex align-items-center">
+          <img [src]="player.img ? authService.getProfileUrl(player.img) : '../../../../../../assets/images/image.png'"
+            alt="Player Image" class="player-img shadow-sm" />
+          <strong class="ml-2"> {{ player.fullName }}</strong>
+
+          <!-- Medal Icons -->
+          <img *ngIf="match.history && i === 0" src="../../../../../../assets/images/gold.png" class="medal-img" />
+          <img *ngIf="match.history && i === 1" src="../../../../../../assets/images/silver.png" class="medal-img" />
+          <img *ngIf="match.history && i === 2" src="../../../../../../assets/images/bronze.png" class="medal-img" />
+        </td>
+        <td class="font-weight-bold text-primary">{{ player.player.total }}</td>
+        <td *ngIf="match && match.history" [ngClass]="{
+                          'text-danger font-weight-bold': player.balance.action === 'deducted',
+                          'text-success font-weight-bold': player.balance.action === 'added'
+                      }">
+          {{ player.balance.action === "deducted" ? "🔻" : "🔺" }} Rs.{{ player.balance.amount }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+}
+
+<!-- Predictions Table -->
+<h3 class="mt-4 text-primary font-weight-bold">🎯 Predictions</h3>
+@if(predictions && predictions.length){
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-bordered text-center">
+    <thead class="thead-dark">
+      <tr>
+        <th class="w-10">S.N.</th>
+        <th>Player</th>
+        <th>Toss Winner</th>
+        <th>Match Winner</th>
+        <th>Man of the Match</th>
         <th>Most Runs</th>
         <th>Most Catches</th>
         <th>Most Wickets</th>
@@ -60,22 +59,21 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let player of predictions; let i = index" class="row-class">
+      <tr *ngFor="let player of predictions; let i = index">
         <td>{{ i + 1 }}</td>
-        <td>
-          {{ player.fullName }}
-        </td>
-        <td>{{ player.player.tossWinner }}</td>
-        <td>{{ player.player.matchWinner }}</td>
-        <td>{{ player.player.manOfTheMatch }}</td>
-        <td>{{ player.player.mostRuns }}</td>
-        <td>{{ player.player.mostCatches }}</td>
-        <td>{{ player.player.mostWickets }}</td>
-        <td>{{ player.player.mostSixes }}</td>
+        <td class="font-weight-bold">{{ player.fullName }}</td>
+        <td class="text-info">{{ player.player.tossWinner }}</td>
+        <td class="text-success font-weight-bold">{{ player.player.matchWinner }}</td>
+        <td class="text-warning">{{ player.player.manOfTheMatch }}</td>
+        <td class="text-primary">{{ player.player.mostRuns }}</td>
+        <td class="text-secondary">{{ player.player.mostCatches }}</td>
+        <td class="text-danger">{{ player.player.mostWickets }}</td>
+        <td class="text-success font-weight-bold">{{ player.player.mostSixes }}</td>
       </tr>
     </tbody>
   </table>
-}@else {
-  <div class="alert alert-danger">Prediction Locked at the moment.</div>
+</div>
+} @else {
+<div class="alert alert-danger text-center">❌ Prediction Locked at the moment.</div>
 }
 }

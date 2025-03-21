@@ -1,129 +1,119 @@
 @if(match && match.active){
-    <div class="overlay" *ngIf="loading">
-        <div class="spinner" >
-            <mat-spinner ></mat-spinner>
-        </div>
+<div class="overlay" *ngIf="loading">
+    <div class="spinner">
+        <mat-spinner></mat-spinner>
     </div>
-    <div class="container border p-4">
-        <form [formGroup]="predictionForm" (ngSubmit)="savePrediction(predictionForm)">
-            
-            <mat-form-field class="m-1 w-30" appearance="outline">
+</div>
+
+<div class="container border p-4">
+    <form [formGroup]="predictionForm" (ngSubmit)="savePrediction(predictionForm)">
+
+        <!-- Form Fields Grid Layout -->
+        <div class="form-row grid-layout">
+            <mat-form-field class="m-1" appearance="outline">
                 <mat-label>Toss Winner</mat-label>
                 <mat-select formControlName="tossWinner">
                     <mat-option *ngFor="let team of teams" [value]="team.shortname">
-                        <div class=" d-flex mt-2">
-                            <div class="img">
-                                <img class="circle" [src]="team.img" width="40px" alt="">
-                            </div>
+                        <div class="d-flex align-items-center">
+                            <img class="circle" [src]="team.img" width="40px" alt="">
+                            <div class="info p-1">{{ team.shortname }}</div>
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="m-1" appearance="outline">
+                <mat-label>Match Winner</mat-label>
+                <mat-select formControlName="matchWinner">
+                    <mat-option *ngFor="let team of teams" [value]="team.shortname">
+                        <div class="d-flex align-items-center">
+                            <img class="circle" [src]="team.img" width="40px" alt="">
+                            <div class="info p-1">{{ team.shortname }}</div>
+                        </div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="m-1" appearance="outline">
+                <mat-label>Man of The Match</mat-label>
+                <mat-select formControlName="manOfTheMatch">
+                    <mat-option *ngFor="let player of players" [value]="player.name">
+                        <div class="d-flex align-items-center">
+                            <img class="circle" [src]="player.playerImg" width="40px" alt="">
                             <div class="info p-1">
-                                <div>{{team.shortname}}</div>
+                                <div>{{ player.name }}</div>
+                                <div>{{ player.role }}</div>
                             </div>
                         </div>
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            
-            <mat-form-field class="m-1 w-30" appearance="outline">
-            <mat-label>Match Winner</mat-label>
-            <mat-select formControlName="matchWinner">
-                <mat-option *ngFor="let team of teams" [value]="team.shortname">
-                    <div class=" d-flex mt-2">
-                        <div class="img">
-                            <img class="circle" [src]="team.img" width="40px" alt="">
-                        </div>
-                        <div class="info p-1">
-                            <div>{{team.shortname}}</div>
-                        </div>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field class="m-1 w-30" appearance="outline">
-            <mat-label>Man of The Match</mat-label>
-            <mat-select formControlName="manOfTheMatch">
-                <mat-option *ngFor="let player of players" [value]="player.name">
-                    <div class=" d-flex mt-2">
-                        <div class="img">
-                            <img class="circle" [src]="player.playerImg" width="40px" alt="">
-                        </div>
-                        <div class="info p-1">
-                            <div>{{player.name}}</div>
-                            <div>{{player.role}}</div>
-                        </div>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field class="m-1 w-30" appearance="outline">
-            <mat-label>Most Runs</mat-label>
-            <mat-select formControlName="mostRuns">
-                <mat-option *ngFor="let player of players" [value]="player.name">
-                    <div class=" d-flex mt-2">
-                        <div class="img">
-                            <img class="circle" [src]="player.playerImg" width="40px" alt="">
-                        </div>
-                        <div class="info p-1">
-                            <div>{{player.name}}</div>
-                            <div>{{player.role}}</div>
-                        </div>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
 
-        <mat-form-field class="m-1 w-30" appearance="outline">
-            <mat-label>Most Wickets</mat-label>
-            <mat-select formControlName="mostWickets">
-                <mat-option *ngFor="let player of players" [value]="player.name">
-                    <div class=" d-flex mt-2">
-                        <div class="img">
+            <mat-form-field class="m-1" appearance="outline">
+                <mat-label>Most Runs</mat-label>
+                <mat-select formControlName="mostRuns">
+                    <mat-option *ngFor="let player of players" [value]="player.name">
+                        <div class="d-flex align-items-center">
                             <img class="circle" [src]="player.playerImg" width="40px" alt="">
+                            <div class="info p-1">
+                                <div>{{ player.name }}</div>
+                                <div>{{ player.role }}</div>
+                            </div>
                         </div>
-                        <div class="info p-1">
-                            <div>{{player.name}}</div>
-                            <div>{{player.role}}</div>
-                        </div>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field class="m-1 w-30" appearance="outline">
-            <mat-label>Most Sixes</mat-label>
-            <mat-select formControlName="mostSixes">
-                <mat-option *ngFor="let player of players" [value]="player.name">
-                    <div class=" d-flex mt-2">
-                        <div class="img">
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="m-1" appearance="outline">
+                <mat-label>Most Wickets</mat-label>
+                <mat-select formControlName="mostWickets">
+                    <mat-option *ngFor="let player of players" [value]="player.name">
+                        <div class="d-flex align-items-center">
                             <img class="circle" [src]="player.playerImg" width="40px" alt="">
+                            <div class="info p-1">
+                                <div>{{ player.name }}</div>
+                                <div>{{ player.role }}</div>
+                            </div>
                         </div>
-                        <div class="info p-1">
-                            <div>{{player.name}}</div>
-                            <div>{{player.role}}</div>
-                        </div>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field class="m-1 w-30" appearance="outline">
-            <mat-label>Most Catches</mat-label>
-            <mat-select formControlName="mostCatches">
-                <mat-option *ngFor="let player of players" [value]="player.name">
-                    <div class=" d-flex mt-2">
-                        <div class="img">
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="m-1" appearance="outline">
+                <mat-label>Most Sixes</mat-label>
+                <mat-select formControlName="mostSixes">
+                    <mat-option *ngFor="let player of players" [value]="player.name">
+                        <div class="d-flex align-items-center">
                             <img class="circle" [src]="player.playerImg" width="40px" alt="">
+                            <div class="info p-1">
+                                <div>{{ player.name }}</div>
+                                <div>{{ player.role }}</div>
+                            </div>
                         </div>
-                        <div class="info p-1">
-                            <div>{{player.name}}</div>
-                            <div>{{player.role}}</div>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="m-1" appearance="outline">
+                <mat-label>Most Catches</mat-label>
+                <mat-select formControlName="mostCatches">
+                    <mat-option *ngFor="let player of players" [value]="player.name">
+                        <div class="d-flex align-items-center">
+                            <img class="circle" [src]="player.playerImg" width="40px" alt="">
+                            <div class="info p-1">
+                                <div>{{ player.name }}</div>
+                                <div>{{ player.role }}</div>
+                            </div>
                         </div>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-        <button mat-flat-button color="primary">Save</button>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Save Button -->
+        <div class="d-flex justify-content-center mt-3">
+            <button mat-flat-button color="primary" class="m-2">Save</button>
+        </div>
     </form>
 </div>
 }

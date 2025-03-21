@@ -1,0 +1,14 @@
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table thead {
+  white-space: nowrap;
+}
+
+.table td,
+.table th {
+  text-align: center;
+  vertical-align: middle;
+}
