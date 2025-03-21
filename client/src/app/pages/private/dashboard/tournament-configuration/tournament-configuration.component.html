@@ -1,11 +1,12 @@
 <div class="container border p-3" *ngIf="tournament">
     <h3 class="card-title">{{tournament.name}}</h3>
 
+    <!-- Players Section -->
     <div class="players">
         <h3>Players</h3>
         <mat-list *ngIf="tournament.players?.length">
-            <mat-list-item *ngFor="let player of tournament.players; let i = index">{{i+1}}.
-                {{player.playerName}}
+            <mat-list-item *ngFor="let player of tournament.players; let i = index">
+                {{i+1}}. {{player.playerName}}
                 <span *ngIf="player.status==='pending'">
                     <button mat-flat-button class="m-2" color="primary"
                         (click)="updateStatus(true, player.email)">Accept</button>
@@ -16,22 +17,22 @@
                 </span>
             </mat-list-item>
         </mat-list>
-        <div class="alert alert-danger" *ngIf="!tournament.players || !tournament.players.length">No players joined yet.
+        <div class="alert alert-danger" *ngIf="!tournament.players || !tournament.players.length">No players joined yet
         </div>
     </div>
 
+    <!-- Matches Section -->
     <div class="matches">
-        <div class="container">
-            <h3>Matches</h3>
-            <button mat-flat-button color="primary"
-                (click)="createMatch = !createMatch; createMatch? createMatchForm():updateMatch= false">
-                {{!createMatch?'Add Match':'Cancel'}}
-            </button>
-            <div class="form border p-3" *ngIf="createMatch">
+        <h3>Matches</h3>
+        <button mat-flat-button color="primary"
+            (click)="createMatch = !createMatch; createMatch ? createMatchForm() : updateMatch = false">
+            {{!createMatch ? 'Add Match' : 'Cancel'}}
+        </button>
 
-                <form [formGroup]="matchForm" class="example-form" (ngSubmit)="saveMatch(matchForm)">
+        <div class="form-container" *ngIf="createMatch">
+            <form [formGroup]="matchForm" class="match-form" (ngSubmit)="saveMatch(matchForm)">
+                <div class="form-grid">
                     <mat-form-field appearance="outline" class="example-full-width">
-
                         <input matInput placeholder="ID" formControlName="id">
                     </mat-form-field>
 
@@ -39,27 +40,23 @@
                         <input matInput placeholder="Date" formControlName="date">
                     </mat-form-field>
 
-
-
                     <mat-form-field appearance="outline" class="example-full-width">
                         <input matInput placeholder="Status" formControlName="status">
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="example-full-width">
                         <mat-label>Team 1</mat-label>
-
                         <mat-select formControlName="t1">
-                            <mat-option *ngFor="let team of allTeams" [value]="team.shortname">{{
-                                team.shortname}}</mat-option>
+                            <mat-option *ngFor="let team of allTeams"
+                                [value]="team.shortname">{{team.shortname}}</mat-option>
                         </mat-select>
-
                     </mat-form-field>
 
                     <mat-form-field appearance="outline" class="example-full-width">
                         <mat-label>Team 2</mat-label>
                         <mat-select formControlName="t2">
-                            <mat-option *ngFor="let team of allTeams" [value]="team.shortname">{{
-                                team.shortname}}</mat-option>
+                            <mat-option *ngFor="let team of allTeams"
+                                [value]="team.shortname">{{team.shortname}}</mat-option>
                         </mat-select>
                     </mat-form-field>
 
@@ -82,8 +79,10 @@
                     <mat-form-field appearance="outline" class="example-full-width">
                         <input matInput placeholder="Man of the Match" formControlName="manOfTheMatch">
                     </mat-form-field>
+                </div>
 
-
+                <!-- Most Catches, Runs, Wickets, Sixes Section -->
+                <div class="additional-stats">
                     <div formArrayName="mostCatches" class="p-3">
                         <h5>Most Catches</h5>
                         <button mat-button color="primary" type="button" (click)="addMostCatchesField()">+</button>
@@ -123,40 +122,41 @@
                             </mat-form-field>
                         </ng-container>
                     </div>
-
-                    <button mat-flat-button color="primary">Save</button>
-                </form>
-
-            </div>
-            <div class="d-flex match-container">
-                <div class="card w-20 p-2" *ngFor="let match of allSeries">
-                    <div class="d-flex justify-content-between">
-                        <button mat-button
-                            (click)=" editFormValue = match;updateMatch= true;createMatchForm(); createMatch = true;  ">Edit</button>
-                        <div class="w-10 m-2">
-                            <div class="team1 m-2">
-                                <img class="circle" height="30px" [src]="match.t1img" alt="" />
-                                <span>{{ match.t1 }}</span> <b class="ml-5">{{match.t1s}}</b>
-                            </div>
-                            <div class="team1 m-2">
-                                <img class="circle" height="30px" [src]="match.t2img" alt="" />
-                                <span>{{ match.t2 }}</span><b class="ml-5">{{match.t2s}}</b>
-                            </div>
-                        </div>
-                        <div class="w-10">
-                            {{ match.date | date : "dd MMMM, yyyy" }}
-                        </div>
-                    </div>
-                    <div class="m-auto">
-                        {{ match.status }}
-                    </div>
-                    <button mat-button color="primary"
-                        (click)="updateActiveStatus(match._id, !match.active)">{{match.active?'Deactivate':'Activate'}}</button>
-                    <button mat-button color="primary" (click)="calculate(match.id)">Calculate</button>
-                    <button mat-button color="primary"
-                        (click)="updateCompleteStatus(match._id,!match.history,match.id )"
-                        *ngIf="!match.history">Complete</button>
                 </div>
+
+                <button mat-flat-button color="primary" class="submit-btn">Save</button>
+            </form>
+        </div>
+
+        <!-- Matches Display -->
+        <div class="d-flex match-container">
+            <div class="card match-card w-20 p-2" *ngFor="let match of allSeries">
+                <div class="d-flex justify-content-between">
+                    <button mat-button
+                        (click)="editFormValue = match; updateMatch = true; createMatchForm(); createMatch = true;">Edit</button>
+                    <div class="w-10 m-2">
+                        <div class="team1 m-2">
+                            <img class="circle" height="30px" [src]="match.t1img" alt="" />
+                            <span>{{ match.t1 }}</span> <b class="ml-5">{{match.t1s}}</b>
+                        </div>
+                        <div class="team1 m-2">
+                            <img class="circle" height="30px" [src]="match.t2img" alt="" />
+                            <span>{{ match.t2 }}</span><b class="ml-5">{{match.t2s}}</b>
+                        </div>
+                    </div>
+                    <div class="w-10">
+                        {{ match.date | date : "dd MMMM, yyyy" }}
+                    </div>
+                </div>
+                <div class="m-auto">
+                    {{ match.status }}
+                </div>
+                <button mat-button color="primary" (click)="updateActiveStatus(match._id, !match.active)">
+                    {{match.active ? 'Deactivate' : 'Activate'}}
+                </button>
+                <button mat-button color="primary" (click)="calculate(match.id)">Calculate</button>
+                <button mat-button color="primary" (click)="updateCompleteStatus(match._id, !match.history, match.id)"
+                    *ngIf="!match.history">Complete</button>
             </div>
         </div>
     </div>
