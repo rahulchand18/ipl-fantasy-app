@@ -351,6 +351,11 @@ function balanceBreakdown(total) {
     130: { first: 70, second: 30, third: 0 },
     140: { first: 80, second: 30, third: 0 },
     150: { first: 90, second: 30, third: 0 },
+    160: { first: 100, second: 30, third: 0 },
+    170: { first: 110, second: 30, third: 0 },
+    180: { first: 120, second: 30, third: 0 },
+    190: { first: 130, second: 30, third: 0 },
+    200: { first: 140, second: 30, third: 0 },
   };
 
   return breakdowns[total] || {};

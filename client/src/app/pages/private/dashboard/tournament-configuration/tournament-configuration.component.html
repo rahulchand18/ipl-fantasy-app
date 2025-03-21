@@ -10,11 +10,10 @@
             <mat-list-item *ngFor="let player of tournament.players; let i = index"
                 class="d-flex justify-content-between align-items-center py-2">
                 <span class="fw-bold">{{ i + 1 }}. {{ player.playerName }}</span>
-                <span *ngIf="player.status === 'pending'">
-                    <button mat-raised-button color="primary" class="m-1" (click)="updateStatus(true, player.email)">
-                        Accept
-                    </button>
-                    <button mat-raised-button color="warn" class="m-1">Reject</button>
+                <span *ngIf="player.status === 'pending'" class="w-20">
+
+                    <button mat-raised-button color="primary" (click)="updateStatus(true, player.email)">Accept</button>
+                    <button mat-raised-button color="warn">Reject</button>
                 </span>
                 <span *ngIf="player.status !== 'pending'" class="badge bg-success">{{ player.status }}</span>
             </mat-list-item>

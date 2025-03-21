@@ -19,7 +19,12 @@ export class RulesComponent {
     12: { first: 80, second: 30, third: 10 },
     13: { first: 80, second: 40, third: 10 },
     14: { first: 90, second: 40, third: 10 },
-    15: { first: 100, second: 40, third: 10 }
+    15: { first: 100, second: 40, third: 10 },
+    16: { first: 110, second: 40, third: 10 },
+    17: { first: 120, second: 40, third: 10 },
+    18: { first: 130, second: 40, third: 10 },
+    19: { first: 140, second: 40, third: 10 },
+    20: { first: 150, second: 40, third: 10 },
   };
 
   // Fix: Convert keys to numbers before sorting
