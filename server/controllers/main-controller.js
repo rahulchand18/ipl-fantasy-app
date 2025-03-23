@@ -33,10 +33,10 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("12 03 * * *", () => {
-  console.log("Match Import Start");
-  importMatch();
-});
+// cron.schedule("12 03 * * *", () => {
+//   console.log("Match Import Start");
+//   importMatch();
+// });
 
 const deactivateMatch = async () => {
   try {
@@ -75,6 +75,10 @@ const getAllSeries = async (req, res) => {
       query = {
         history: history === "true",
       };
+    } else {
+      query = {
+        history: false,
+      };
     }
 
     let matches = [];
@@ -83,7 +87,7 @@ const getAllSeries = async (req, res) => {
     if (fullList === "true" || history === "true") {
       matches = await Match.find(query).sort({ date: 1 });
     } else {
-      matches = await Match.find(query).sort({ date: -1 }).limit(3);
+      matches = await Match.find(query).sort({ date: 1 }).limit(3);
     }
     if (matches && matches.length) {
       const data = [];
