@@ -14,7 +14,7 @@ const MatchList = require("../models/matchList.model");
 const teamsObj = {
   "Mumbai Indians": "MI",
   "Chennai Super Kings": "CSK",
-  "Royal Challengers Bangalore": "RCB",
+  "Royal Challengers Bengaluru": "RCB",
   "Kolkata Knight Riders": "KKR",
   "Rajasthan Royals": "RR",
   "Sunrisers Hyderabad": "SRH",
@@ -33,7 +33,7 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("00 03 * * *", () => {
+cron.schedule("12 03 * * *", () => {
   console.log("Match Import Start");
   importMatch();
 });
@@ -90,6 +90,7 @@ const getAllSeries = async (req, res) => {
       for (const match of matches) {
         const t1 = await Teams.findOne({ shortname: match.t1 });
         const t2 = await Teams.findOne({ shortname: match.t2 });
+        console.log(match);
         data.push({
           ...match._doc,
           t2img: t2.img,
@@ -904,20 +905,24 @@ const importMatch = async () => {
   try {
     const allMatches = await MatchList.find();
     for (const match of allMatches) {
+      const team1 = match.teams[0];
+      const team2 = match.teams[1];
       const matchData = {
         matchId: match.id,
         date: match.dateTimeGMT,
         status: match.status,
-        t1: match.teams[0],
-        t2: match.teams[1],
+        t1: teamsObj[team1],
+        t2: teamsObj[team2],
       };
-      matchData.id = `${teamsObj[matchData.t1]}vs${teamsObj[matchData.t2]}`;
+      matchData.id = `${matchData.t1}vs${matchData.t2}`;
 
       const existingMatch = await Match.findOne({ matchId: match.id });
-      if (!existingMatch) {
-        await Match.create(matchData);
-      } else {
-        await Match.updateOne({ matchId: match.id }, { $set: matchData });
+      if (team1 && team2) {
+        if (!existingMatch) {
+          await Match.create(matchData);
+        } else {
+          await Match.updateOne({ matchId: match.id }, { $set: matchData });
+        }
       }
     }
     console.log("Completed");
