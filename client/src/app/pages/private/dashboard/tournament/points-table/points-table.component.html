@@ -44,7 +44,7 @@
 <h3 class="mt-4 text-primary font-weight-bold">🎯 Predictions</h3>
 @if(predictions && predictions.length){
 <div class="table-responsive">
-  <table class="table table-striped table-hover table-bordered text-center">
+  <table class="table table-striped table-hover table-bordered text-center custom-table">
     <thead class="thead-dark">
       <tr>
         <th class="w-10">S.N.</th>
@@ -62,17 +62,46 @@
       <tr *ngFor="let player of predictions; let i = index">
         <td>{{ i + 1 }}</td>
         <td class="font-weight-bold">{{ player.fullName }}</td>
-        <td class="text-info">{{ player.player.tossWinner }}</td>
-        <td class="text-success font-weight-bold">{{ player.player.matchWinner }}</td>
-        <td class="text-warning">{{ player.player.manOfTheMatch }}</td>
-        <td class="text-primary">{{ player.player.mostRuns }}</td>
-        <td class="text-secondary">{{ player.player.mostCatches }}</td>
-        <td class="text-danger">{{ player.player.mostWickets }}</td>
-        <td class="text-success font-weight-bold">{{ player.player.mostSixes }}</td>
+
+        <td [ngClass]="{'correct': player.isTossWinnerCorrect}">
+          <span>{{ player.tossWinner }}</span>
+          <span *ngIf="player.isTossWinnerCorrect" class="points">+1</span>
+        </td>
+
+        <td [ngClass]="{'correct': player.isMatchWinnerCorrect}">
+          <span>{{ player.matchWinner }}</span>
+          <span *ngIf="player.isMatchWinnerCorrect" class="points">+5</span>
+        </td>
+
+        <td [ngClass]="{'correct': player.isManOfTheMatchCorrect}">
+          <span>{{ player.manOfTheMatch }}</span>
+          <span *ngIf="player.isManOfTheMatchCorrect" class="points">+5</span>
+        </td>
+
+        <td [ngClass]="{'correct': player.isMostRunsCorrect}">
+          <span>{{ player.mostRuns }}</span>
+          <span *ngIf="player.isMostRunsCorrect" class="points">+2</span>
+        </td>
+
+        <td [ngClass]="{'correct': player.isMostCatchesCorrect}">
+          <span>{{ player.mostCatches }}</span>
+          <span *ngIf="player.isMostCatchesCorrect" class="points">+2</span>
+        </td>
+
+        <td [ngClass]="{'correct': player.isMostWicketsCorrect}">
+          <span>{{ player.mostWickets }}</span>
+          <span *ngIf="player.isMostWicketsCorrect" class="points">+2</span>
+        </td>
+
+        <td [ngClass]="{'correct': player.isMostSixesCorrect}">
+          <span>{{ player.mostSixes }}</span>
+          <span *ngIf="player.isMostSixesCorrect" class="points">+3</span>
+        </td>
       </tr>
     </tbody>
   </table>
 </div>
+
 } @else {
 <div class="alert alert-danger text-center">❌ Prediction Locked at the moment.</div>
 }

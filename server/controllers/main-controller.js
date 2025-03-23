@@ -536,22 +536,74 @@ const getPointsTable = async (req, res) => {
 const getAllPredictions = async (req, res) => {
   try {
     const { matchId } = req.params;
-    const predictions = await PredictionModel.find({ matchId });
-    if (predictions && predictions.length) {
-      const players = [];
-      for (const player of predictions) {
-        const p = await User.findOne({ email: player.email });
-        players.push({
-          player,
-          fullName: p.firstName + " " + p.lastName,
-        });
-      }
-      return res.status(200).send({ data: players });
-    } else {
-      return res.status(404).send("No predictions found for this match");
+
+    // Fetch the actual match results from the database
+    const actualMatch = await Match.findOne({ matchId });
+    if (!actualMatch) {
+      return res.status(404).send({ message: "Match results not found" });
     }
+
+    // Aggregate query to fetch predictions with user details
+    const predictions = await PredictionModel.aggregate([
+      { $match: { matchId } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "email",
+          foreignField: "email",
+          as: "userInfo",
+        },
+      },
+      {
+        $unwind: { path: "$userInfo", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $project: {
+          _id: 1,
+          email: 1,
+          matchId: 1,
+          tossWinner: 1,
+          matchWinner: 1,
+          manOfTheMatch: 1,
+          mostCatches: 1,
+          mostRuns: 1,
+          mostWickets: 1,
+          mostSixes: 1,
+          fullName: {
+            $concat: [
+              { $ifNull: ["$userInfo.firstName", "Unknown"] },
+              " ",
+              { $ifNull: ["$userInfo.lastName", ""] },
+            ],
+          },
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    // Map through predictions and add boolean flags
+    const updatedPredictions = predictions.map((pred) => ({
+      ...pred,
+      isTossWinnerCorrect: pred.tossWinner === actualMatch.tossWinner,
+      isMatchWinnerCorrect: pred.matchWinner === actualMatch.matchWinner,
+      isManOfTheMatchCorrect: pred.manOfTheMatch === actualMatch.manOfTheMatch,
+      isMostCatchesCorrect: actualMatch.mostCatches.includes(pred.mostCatches),
+      isMostRunsCorrect: actualMatch.mostRuns.includes(pred.mostRuns),
+      isMostWicketsCorrect: actualMatch.mostWickets.includes(pred.mostWickets),
+      isMostSixesCorrect: actualMatch.mostSixes.includes(pred.mostSixes),
+    }));
+
+    if (!updatedPredictions.length) {
+      return res
+        .status(404)
+        .send({ message: "No predictions found for this match" });
+    }
+
+    return res.status(200).json({ data: updatedPredictions });
   } catch (error) {
-    return res.status(500).send(error);
+    console.error("Error fetching predictions:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
