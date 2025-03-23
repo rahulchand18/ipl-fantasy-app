@@ -47,7 +47,7 @@
 
                 <!-- Match Date -->
                 <div class="match-date text-center mt-3 font-italic text-secondary">
-                    📅 {{ match.date | date: "dd MMMM, yyyy" }}
+                    📅 {{ (match.date) | date: "dd MMMM, yyyy" }}
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
     <!-- Action Buttons -->
     <div class="btn-container d-flex flex-wrap justify-content-center mt-4">
         <button mat-flat-button class="btn-custom m-1" color="primary" [disabled]="history"
-            (click)="getAllSeries(true); history = true">
+            (click)="getAllSeries(true, false); history = true">
             📜 History
         </button>
         <button mat-flat-button class="btn-custom m-1" color="primary" (click)="getAllSeries(false); history = false">

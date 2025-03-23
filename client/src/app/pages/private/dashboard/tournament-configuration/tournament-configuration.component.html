@@ -32,6 +32,10 @@
                 (click)="createMatch = !createMatch; createMatch ? createMatchForm() : updateMatch = false">
                 {{ !createMatch ? 'Add Match' : 'Cancel' }}
             </button>
+            <button mat-flat-button color="primary" class="mb-3 mx-3"
+                (click)="history = !history;getAllSeries(history, false); ">
+                {{history?'Current':'History'}}
+            </button>
 
             <!-- Match Form -->
             <div class="form border p-3 bg-white rounded shadow-sm" *ngIf="createMatch">

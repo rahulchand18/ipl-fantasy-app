@@ -69,7 +69,7 @@ const activateMatch = async () => {
 
 const getAllSeries = async (req, res) => {
   try {
-    const { history, fullList } = req.query;
+    const { history, fullList, viewAsAdmin } = req.query;
     let query = {};
     if (history && history === "true") {
       query = {
@@ -82,19 +82,21 @@ const getAllSeries = async (req, res) => {
     }
 
     let matches = [];
-    console.log(history, fullList);
 
-    if (fullList === "true" || history === "true") {
-      matches = await Match.find(query).sort({ date: 1 });
+    if (fullList === "true" || history !== "true") {
+      if (viewAsAdmin === "true" || fullList === "true") {
+        matches = await Match.find(query).sort({ date: 1 });
+      } else {
+        matches = await Match.find(query).sort({ date: 1 }).limit(3);
+      }
     } else {
-      matches = await Match.find(query).sort({ date: 1 }).limit(3);
+      matches = await Match.find(query).sort({ date: -1 }).limit(3);
     }
     if (matches && matches.length) {
       const data = [];
       for (const match of matches) {
         const t1 = await Teams.findOne({ shortname: match.t1 });
         const t2 = await Teams.findOne({ shortname: match.t2 });
-        console.log(match);
         data.push({
           ...match._doc,
           t2img: t2.img,
@@ -560,7 +562,7 @@ const getAllPredictions = async (req, res) => {
     const { matchId } = req.params;
 
     // Fetch the actual match results from the database
-    const actualMatch = await Match.findOne({ id:matchId });
+    const actualMatch = await Match.findOne({ id: matchId });
     if (!actualMatch) {
       return res.status(404).send({ message: "Match results not found" });
     }

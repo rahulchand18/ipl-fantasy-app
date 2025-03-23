@@ -7,12 +7,14 @@ import { HttpService } from './http.service';
   providedIn: 'root',
 })
 export class MatchService {
-  constructor(private http: HttpService) {}
+  constructor(private http: HttpService) { }
 
   getAllSeries(query?: {
-    history: boolean;
+    history?: boolean;
     fullList?: boolean;
+    viewAsAdmin?: boolean;
   }): Observable<any> {
+    console.log(query)
     return this.http.get('/getAllSeries', query);
   }
 
