@@ -54,15 +54,16 @@ const getAllSeries = async (req, res) => {
   try {
     const { history, fullList } = req.query;
     let query = {};
-    if (history) {
+    if (history && history === "true") {
       query = {
         history: history === "true",
       };
     }
 
     let matches = [];
+    console.log(history, fullList);
 
-    if (fullList === "true" || history !== "true") {
+    if (fullList === "true" || history === "true") {
       matches = await Match.find(query).sort({ date: 1 });
     } else {
       matches = await Match.find(query).sort({ date: -1 }).limit(3);
@@ -312,7 +313,7 @@ async function calculateBalance(matchId) {
     total: -1,
     createdAt: 1,
   });
-  const totalBalance = matchWinner.length * 25;
+  const totalBalance = matchWinner.length * 10;
   const { first, second, third } = balanceBreakdown(totalBalance);
   for (const player of matchWinner) {
     if (player.email === matchWinner[0].email) {
@@ -332,7 +333,7 @@ async function calculateBalance(matchId) {
         matchId
       );
     } else {
-      await updateBalanceByUser(player.email, 25, "deducted", matchId);
+      await updateBalanceByUser(player.email, 10, "deducted", matchId);
     }
   }
 }
@@ -356,6 +357,11 @@ function balanceBreakdown(total) {
     180: { first: 120, second: 30, third: 0 },
     190: { first: 130, second: 30, third: 0 },
     200: { first: 140, second: 30, third: 0 },
+    210: { first: 150, second: 30, third: 0 },
+    220: { first: 160, second: 30, third: 0 },
+    230: { first: 170, second: 30, third: 0 },
+    240: { first: 180, second: 30, third: 0 },
+    250: { first: 190, second: 30, third: 0 },
   };
 
   return breakdowns[total] || {};
