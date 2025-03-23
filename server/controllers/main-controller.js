@@ -36,7 +36,7 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("25 14 * * *", () => {
+cron.schedule("40 14 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
@@ -1018,7 +1018,7 @@ const importScoreCard = async () => {
 
       matchData.players = mergedPlayers;
 
-      const existing = Scorecard.find(matchData.id);
+      const existing = Scorecard.find({ id: matchData.id });
       if (!existing) {
         await Scorecard.create(matchData);
       } else {
