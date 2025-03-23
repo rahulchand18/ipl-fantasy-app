@@ -10,7 +10,19 @@ const BalanceModel = require("../models/balance.model");
 const StatementModel = require("../models/statement.model");
 const cron = require("node-cron");
 const notificationModel = require("../models/notification.model");
-
+const MatchList = require("../models/matchList.model");
+const teamsObj = {
+  "Mumbai Indians": "MI",
+  "Chennai Super Kings": "CSK",
+  "Royal Challengers Bangalore": "RCB",
+  "Kolkata Knight Riders": "KKR",
+  "Rajasthan Royals": "RR",
+  "Sunrisers Hyderabad": "SRH",
+  "Delhi Capitals": "DC",
+  "Punjab Kings": "PBKS",
+  "Lucknow Super Giants": "LSG",
+  "Gujarat Titans": "GT",
+};
 cron.schedule("20 13 * * *", () => {
   console.log("Match deactivate started.");
   deactivateMatch();
@@ -19,6 +31,11 @@ cron.schedule("20 13 * * *", () => {
 cron.schedule("15 02 * * *", () => {
   console.log("Match Activate Start");
   activateMatch();
+});
+
+cron.schedule("00 03 * * *", () => {
+  console.log("Match Import Start");
+  importMatch();
 });
 
 const deactivateMatch = async () => {
@@ -881,6 +898,32 @@ const getNotifications = async (req, res) => {
 const getFullNameById = async (email) => {
   const user = await User.findOne({ email });
   return user?.firstName + " " + user?.lastName;
+};
+
+const importMatch = async () => {
+  try {
+    const allMatches = await MatchList.find();
+    for (const match of allMatches) {
+      const matchData = {
+        matchId: match.id,
+        date: match.dateTimeGMT,
+        status: match.status,
+        t1: match.teams[0],
+        t2: match.teams[1],
+      };
+      matchData.id = `${teamsObj[matchData.t1]}vs${teamsObj[matchData.t2]}`;
+
+      const existingMatch = await Match.findOne({ matchId: match.id });
+      if (!existingMatch) {
+        await Match.create(matchData);
+      } else {
+        await Match.updateOne({ matchId: match.id }, { $set: matchData });
+      }
+    }
+    console.log("Completed");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const mainController = {

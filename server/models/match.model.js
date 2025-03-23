@@ -3,6 +3,9 @@ const Schema = mongoose.Schema;
 
 const MatchSchema = new Schema(
   {
+    matchId: {
+      type: String,
+    },
     id: {
       type: String,
     },
