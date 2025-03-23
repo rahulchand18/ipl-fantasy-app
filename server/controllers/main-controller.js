@@ -560,7 +560,7 @@ const getAllPredictions = async (req, res) => {
     const { matchId } = req.params;
 
     // Fetch the actual match results from the database
-    const actualMatch = await Match.findOne({ matchId });
+    const actualMatch = await Match.findOne({ id:matchId });
     if (!actualMatch) {
       return res.status(404).send({ message: "Match results not found" });
     }
