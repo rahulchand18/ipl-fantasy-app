@@ -19,6 +19,10 @@ const MatchSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    matchStarted: {
+      type: Boolean,
+      default: false,
+    },
     history: {
       type: Boolean,
       default: false,

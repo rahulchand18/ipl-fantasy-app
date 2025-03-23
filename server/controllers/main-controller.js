@@ -11,6 +11,7 @@ const StatementModel = require("../models/statement.model");
 const cron = require("node-cron");
 const notificationModel = require("../models/notification.model");
 const MatchList = require("../models/matchList.model");
+const Scorecard = require("../models/scorecard.model");
 const teamsObj = {
   "Mumbai Indians": "MI",
   "Chennai Super Kings": "CSK",
@@ -23,6 +24,8 @@ const teamsObj = {
   "Lucknow Super Giants": "LSG",
   "Gujarat Titans": "GT",
 };
+// const API_KEY = "b1730717-b60e-4809-a631-37143da63010";
+const API_KEY = "203fdcb6-99e1-41e7-95da-62f38dedb565";
 cron.schedule("20 13 * * *", () => {
   console.log("Match deactivate started.");
   deactivateMatch();
@@ -33,10 +36,10 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-// cron.schedule("12 03 * * *", () => {
-//   console.log("Match Import Start");
-//   importMatch();
-// });
+cron.schedule("25 14 * * *", () => {
+  console.log("Match Import Start");
+  importScoreCard();
+});
 
 const deactivateMatch = async () => {
   try {
@@ -309,6 +312,20 @@ const updateActiveStatus = async (req, res) => {
     const updated = await Match.findOneAndUpdate(
       { _id: id },
       { $set: { active } }
+    );
+    return res.send(updated);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
+const updateMatchStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { active } = req.body;
+    const updated = await Match.findOneAndUpdate(
+      { _id: id },
+      { $set: { matchStarted: active } }
     );
     return res.send(updated);
   } catch (error) {
@@ -937,6 +954,95 @@ const importMatch = async () => {
   }
 };
 
+const importScoreCard = async () => {
+  try {
+    const activeMatches = await Match.find({
+      history: false,
+      matchStarted: true,
+    });
+    for (const match of activeMatches) {
+      console.log(match.id);
+      const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${API_KEY}&id=${match.matchId}`;
+      const response = await axios.get(url);
+      // const response = require("/home/javra/Documents/ipl/ipl-2025/scorecard-sample.json");
+      const matchResponse = response.data?.data;
+      const matchData = {
+        id: matchResponse.id,
+        status: matchResponse.status,
+        t1: matchResponse.teams[0],
+        t2: matchResponse.teams[1],
+        t1s: `${matchResponse.score[0]?.r}/${matchResponse.score[0]?.w} (${
+          matchResponse.score[0]?.o ?? 0.0
+        })`,
+        t2s: `${matchResponse.score[1]?.r ?? 0}/${
+          matchResponse.score[1]?.w ?? 0
+        } (${matchResponse.score[1]?.o ?? 0.0})`,
+        tossWinner: teamsObj[matchResponse.tossWinner],
+        matchWinner: teamsObj[matchResponse.matchWinner],
+        matchStarted: matchResponse.matchStarted,
+        matchEnded: matchResponse.matchEnded,
+      };
+      const players = [];
+
+      for (const inning of matchResponse.scorecard) {
+        for (const player of inning.batting) {
+          const playerData = {
+            name: player.batsman.name,
+            runs: player.r,
+            balls: player.b,
+            sixes: player["6s"],
+            fours: player["4s"],
+            strikeRate: player.sr,
+          };
+          players.push(playerData);
+        }
+        for (const player of inning.bowling) {
+          const playerData = {
+            name: player.bowler.name,
+            overs: player.o,
+            maidens: player.m,
+            wickets: player.w,
+          };
+          players.push(playerData);
+        }
+        for (const player of inning.catching) {
+          const playerData = {
+            name: player.catcher.name,
+            catch: player.catch,
+          };
+          players.push(playerData);
+        }
+      }
+
+      const mergedPlayers = mergeObjectsByName(players);
+
+      matchData.players = mergedPlayers;
+
+      const existing = Scorecard.find(matchData.id);
+      if (!existing) {
+        await Scorecard.create(matchData);
+      } else {
+        await Scorecard.updateOne({ id: existing.id }, { $set: matchData });
+      }
+    }
+  } catch (error) {
+    console.log(error.stack);
+  }
+};
+
+function mergeObjectsByName(arr) {
+  return Object.values(
+    arr.reduce((acc, obj) => {
+      if (!acc[obj.name]) {
+        acc[obj.name] = { ...obj };
+      } else {
+        Object.assign(acc[obj.name], obj);
+      }
+      return acc;
+    }, {})
+  );
+}
+
 const mainController = {
   getAllSeries,
   createMatch,
@@ -949,6 +1055,7 @@ const mainController = {
   getTournamentById,
   getAllTeamInfo,
   updateActiveStatus,
+  updateMatchStatus,
   getPrediction,
   getPlayers,
   createPrediction,

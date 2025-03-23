@@ -59,6 +59,9 @@ export class MatchService {
   updateActiveStatus(id: string, active: boolean): Observable<any> {
     return this.http.put(`/updateActiveStatus/${id}`, { active });
   }
+  updateMatchStatus(id: string, active: boolean): Observable<any> {
+    return this.http.put(`/updateMatchStatus/${id}`, { active });
+  }
   updateCompleteStatus(
     id: string,
     history: boolean,
