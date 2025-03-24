@@ -34,7 +34,7 @@ export class TournamentComponent {
       if (this.scrollTarget) {
         this.scrollTarget.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-    }, 10);
+    }, 100);
   }
 
 
