@@ -25,7 +25,8 @@ const teamsObj = {
   "Gujarat Titans": "GT",
 };
 // const API_KEY = "b1730717-b60e-4809-a631-37143da63010";
-const API_KEY = "203fdcb6-99e1-41e7-95da-62f38dedb565";
+// const API_KEY = "203fdcb6-99e1-41e7-95da-62f38dedb565";
+const API_KEY = "ea6a4521-2526-4eb1-ac03-b01f3bede206";
 cron.schedule("20 13 * * *", () => {
   console.log("Match deactivate started.");
   deactivateMatch();
@@ -36,9 +37,13 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("40 14 * * *", () => {
+cron.schedule("0 14-19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
+});
+cron.schedule("28 16 * * *", () => {
+  console.log("Match Import Start");
+  importFromScorecard();
 });
 
 const deactivateMatch = async () => {
@@ -1018,9 +1023,10 @@ const importScoreCard = async () => {
 
       matchData.players = mergedPlayers;
 
-      const existing = Scorecard.find({ id: matchData.id });
+      const existing = await Scorecard.findOne({ id: matchData.id });
       if (!existing) {
-        await Scorecard.create(matchData);
+        const a = await Scorecard.create(matchData);
+        console.log(a);
       } else {
         await Scorecard.updateOne({ id: existing.id }, { $set: matchData });
       }
@@ -1042,6 +1048,62 @@ function mergeObjectsByName(arr) {
     }, {})
   );
 }
+
+const importFromScorecard = async () => {
+  try {
+    const activeMatches = await Match.find({
+      history: false,
+      matchStarted: true,
+    });
+    for (const match of activeMatches) {
+      const summary = await Scorecard.aggregate([
+        { $match: { id: match.matchId } },
+        {
+          $unwind: "$players",
+        },
+        {
+          $group: {
+            _id: null,
+            mostRuns: {
+              $max: { runs: "$players.runs", name: "$players.name" },
+            },
+            mostWickets: {
+              $max: { wickets: "$players.wickets", name: "$players.name" },
+            },
+            mostCatches: {
+              $max: { catch: "$players.catch", name: "$players.name" },
+            },
+            mostSixes: {
+              $max: { sixes: "$players.sixes", name: "$players.name" },
+            },
+            t1s: { $first: "$t1s" },
+            t2s: { $first: "$t2s" },
+            status: { $first: "$status" },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            mostRuns: "$mostRuns.name",
+            runs: "$mostRuns.runs",
+            mostWickets: "$mostWickets.name",
+            wickets: "$mostWickets.wickets",
+            mostCatches: "$mostCatches.name",
+            catches: "$mostCatches.catch",
+            mostSixes: "$mostSixes.name",
+            sixes: "$mostSixes.sixes",
+            t1s: 1,
+            t2s: 1,
+            status: 1,
+          },
+        },
+      ]);
+      console.log(summary);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const mainController = {
   getAllSeries,
