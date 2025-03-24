@@ -19,7 +19,8 @@
       <td>{{ i + 1 }}</td>
       <td class="d-flex align-items-center">
         <img class="player-img shadow-sm"
-          [src]="player.img ? authService.getProfileUrl(player.img) : 'assets/images/default.png'" alt="Player Image" />
+          [src]="player.img ? authService.getProfileUrl(player.img) : '../../../../../../assets/images/image.png'"
+          alt="Player Image" />
         <strong class="ml-2">{{ player.firstName }} {{ player.lastName }}</strong>
       </td>
       <td>{{ player.matches }}</td>
