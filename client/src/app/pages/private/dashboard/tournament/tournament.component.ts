@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/core/auth/auth.service';
@@ -14,6 +14,7 @@ export class TournamentComponent {
   loading = false;
   viewFullList = false;
   history = false;
+  @ViewChild('scrollTarget') scrollTarget!: ElementRef;
   constructor(
     private route: ActivatedRoute,
     private matchService: MatchService,
@@ -27,6 +28,16 @@ export class TournamentComponent {
       }
     });
   }
+
+  scrollToOutlet() {
+    setTimeout(() => {
+      if (this.scrollTarget) {
+        this.scrollTarget.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 0);
+  }
+
+
   ngOnInit(): void {
     this.getAllSeries(false);
   }
@@ -47,11 +58,11 @@ export class TournamentComponent {
     if (active) {
       this.router.navigate([`/u/tournament/prediction`], {
         queryParams: { matchId },
-      });
+      }).then(() => this.scrollToOutlet());
     } else {
       this.router.navigate([`/u/tournament/points-table`], {
         queryParams: { matchId },
-      });
+      }).then(() => this.scrollToOutlet());
     }
   }
 

@@ -40,7 +40,7 @@
         <div class="alert alert-danger text-center" role="alert" *ngIf="!tournaments || !tournaments.length">
           No Tournaments
         </div>
-        <div class="card cursor-pointer m-2" *ngFor="let tournament of tournaments"
+        <div class="card card-torn cursor-pointer m-2" *ngFor="let tournament of tournaments"
           (click)="openTournamentPage(tournament)">
           <div class="card-header">
             <h3 class="card-title">{{ tournament.name }}</h3>

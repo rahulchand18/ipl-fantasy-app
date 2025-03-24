@@ -14,7 +14,7 @@ export class ResultsComponent {
 
   }
   getAllSeries() {
-    this.matchService.getAllSeries().subscribe(res => {
+    this.matchService.getAllSeries({ history: true, fullList: true }).subscribe(res => {
       this.results = res.data
     })
   }

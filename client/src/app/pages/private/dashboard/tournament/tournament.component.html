@@ -67,22 +67,25 @@
         <button mat-flat-button class="btn-custom m-1" color="primary" (click)="getAllSeries(false); history = false">
             🏏 Current Matches
         </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="season-points-table">
+        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="season-points-table"
+            (click)="scrollToOutlet()">
             📊 Season Points Table
         </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="match-results">
+        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="match-results"
+            (click)="scrollToOutlet()">
             🏆 Match Results
         </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="match-summary">
+        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="match-summary"
+            (click)="scrollToOutlet()">
             🎯 Correct Predictions
         </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="rules">
+        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="rules" (click)="scrollToOutlet()">
             📜 Rules
         </button>
     </div>
 </div>
 
 <!-- Router Outlet -->
-<div class="container mt-4">
+<div class="container mt-4" #scrollTarget>
     <router-outlet></router-outlet>
 </div>
