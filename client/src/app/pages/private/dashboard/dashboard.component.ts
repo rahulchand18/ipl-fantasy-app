@@ -56,7 +56,8 @@ export class DashboardComponent implements OnInit {
               message: 'Your balance is negative. Please settle the outstanding amount to maintain a positive balance.',
               title: 'Balance Alert!!',
               balance: this.balance,
-            }
+            }, panelClass: 'custom-dialog-container'
+
           })
         }
       });
