@@ -52,7 +52,6 @@ export class DashboardComponent implements OnInit {
 
         if (this.balance < 0) {
           this.dialog.open(AlertComponent, {
-            width: '50%',
             data: {
               message: 'Your balance is negative. Please settle the outstanding amount to maintain a positive balance.',
               title: 'Balance Alert!!',
