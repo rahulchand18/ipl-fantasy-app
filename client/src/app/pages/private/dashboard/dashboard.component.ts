@@ -5,6 +5,7 @@ import { MatchService } from 'src/app/core/services/match.service';
 import { TournamentFormComponent } from './tournament-form/tournament-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { AlertComponent } from './alert/alert.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -48,6 +49,17 @@ export class DashboardComponent implements OnInit {
       .subscribe((res) => {
         this.balance = res.data.balance;
         this.statements = res.data.statements;
+
+        if (this.balance < 0) {
+          this.dialog.open(AlertComponent, {
+            width: '50%',
+            data: {
+              message: 'Your balance is negative. Please settle the outstanding amount to maintain a positive balance.',
+              title: 'Balance Alert!!',
+              balance: this.balance,
+            }
+          })
+        }
       });
   }
 
