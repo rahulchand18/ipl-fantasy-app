@@ -41,7 +41,7 @@ cron.schedule("0 14-19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
-cron.schedule("28 16 * * *", () => {
+cron.schedule("5 14-19 * * *", () => {
   console.log("Match Import Start");
   importFromScorecard();
 });
@@ -496,54 +496,57 @@ const updatePrediction = async (req, res) => {
 const calculatePoints = async (req, res) => {
   try {
     const { matchId } = req.params;
-    let predictions = await PredictionModel.find({ matchId });
-    const match = await Match.findOne({ id: matchId });
-    if (predictions && predictions.length) {
-      for (const prediction of predictions) {
-        const existingCalculation = await PointsTable.findOne({
-          matchId,
-          email: prediction.email,
-        });
-        const tableDocument = {
-          matchId,
-          date: match.date,
-          email: prediction.email,
-          tossWinner: match.tossWinner === prediction.tossWinner ? 1 : 0,
-          matchWinner: match.matchWinner === prediction.matchWinner ? 5 : 0,
-          manOfTheMatch:
-            match.manOfTheMatch === prediction.manOfTheMatch ? 5 : 0,
-          mostCatches: match.mostCatches?.includes(prediction.mostCatches)
-            ? 2
-            : 0,
-          mostRuns: match.mostRuns?.includes(prediction.mostRuns) ? 2 : 0,
-          mostWickets: match.mostWickets?.includes(prediction.mostWickets)
-            ? 2
-            : 0,
-          mostSixes: match.mostSixes?.includes(prediction.mostSixes) ? 3 : 0,
-        };
-        tableDocument.total =
-          tableDocument.manOfTheMatch +
-          tableDocument.matchWinner +
-          tableDocument.mostCatches +
-          tableDocument.mostRuns +
-          tableDocument.mostSixes +
-          tableDocument.mostWickets +
-          tableDocument.tossWinner;
-        if (!existingCalculation) {
-          await PointsTable.create(tableDocument);
-        } else {
-          await PointsTable.updateOne(
-            { matchId, email: prediction.email },
-            { $set: tableDocument }
-          );
-        }
-      }
-      return res.send(true);
-    }
+    await calculateAndStore(matchId);
+    return res.send(true);
   } catch (error) {
     return res.status(500).send(error);
   }
 };
+
+async function calculateAndStore(matchId) {
+  let predictions = await PredictionModel.find({ matchId });
+  const match = await Match.findOne({ id: matchId });
+  if (predictions && predictions.length) {
+    for (const prediction of predictions) {
+      const existingCalculation = await PointsTable.findOne({
+        matchId,
+        email: prediction.email,
+      });
+      const tableDocument = {
+        matchId,
+        date: match.date,
+        email: prediction.email,
+        tossWinner: match.tossWinner === prediction.tossWinner ? 1 : 0,
+        matchWinner: match.matchWinner === prediction.matchWinner ? 5 : 0,
+        manOfTheMatch: match.manOfTheMatch === prediction.manOfTheMatch ? 5 : 0,
+        mostCatches: match.mostCatches?.includes(prediction.mostCatches)
+          ? 2
+          : 0,
+        mostRuns: match.mostRuns?.includes(prediction.mostRuns) ? 2 : 0,
+        mostWickets: match.mostWickets?.includes(prediction.mostWickets)
+          ? 2
+          : 0,
+        mostSixes: match.mostSixes?.includes(prediction.mostSixes) ? 3 : 0,
+      };
+      tableDocument.total =
+        tableDocument.manOfTheMatch +
+        tableDocument.matchWinner +
+        tableDocument.mostCatches +
+        tableDocument.mostRuns +
+        tableDocument.mostSixes +
+        tableDocument.mostWickets +
+        tableDocument.tossWinner;
+      if (!existingCalculation) {
+        await PointsTable.create(tableDocument);
+      } else {
+        await PointsTable.updateOne(
+          { matchId, email: prediction.email },
+          { $set: tableDocument }
+        );
+      }
+    }
+  }
+}
 
 const getPointsTable = async (req, res) => {
   try {
@@ -1059,46 +1062,204 @@ const importFromScorecard = async () => {
       const summary = await Scorecard.aggregate([
         { $match: { id: match.matchId } },
         {
-          $unwind: "$players",
-        },
-        {
-          $group: {
-            _id: null,
-            mostRuns: {
-              $max: { runs: "$players.runs", name: "$players.name" },
-            },
-            mostWickets: {
-              $max: { wickets: "$players.wickets", name: "$players.name" },
-            },
-            mostCatches: {
-              $max: { catch: "$players.catch", name: "$players.name" },
-            },
-            mostSixes: {
-              $max: { sixes: "$players.sixes", name: "$players.name" },
-            },
-            t1s: { $first: "$t1s" },
-            t2s: { $first: "$t2s" },
-            status: { $first: "$status" },
+          $facet: {
+            // Get match info
+            matchInfo: [
+              {
+                $project: {
+                  t1: 1,
+                  t2: 1,
+                  t1s: 1,
+                  t2s: 1,
+                  status: 1,
+                  tossWinner: 1,
+                  matchWinner: 1,
+                  matchStarted: 1,
+                  matchEnded: 1,
+                },
+              },
+            ],
+            // Top Run Scorers
+            topRuns: [
+              { $unwind: "$players" },
+              { $match: { "players.runs": { $exists: true, $gt: 0 } } },
+              { $sort: { "players.runs": -1 } },
+              {
+                $group: {
+                  _id: null,
+                  maxRuns: { $max: "$players.runs" },
+                  players: {
+                    $push: { name: "$players.name", runs: "$players.runs" },
+                  },
+                },
+              },
+              {
+                $project: {
+                  topScorers: {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$players",
+                          as: "player",
+                          cond: { $eq: ["$$player.runs", "$maxRuns"] },
+                        },
+                      },
+                      as: "p",
+                      in: "$$p.name",
+                    },
+                  },
+                },
+              },
+            ],
+            // Top Wicket Takers
+            topWickets: [
+              { $unwind: "$players" },
+              { $match: { "players.wickets": { $exists: true, $gt: 0 } } },
+              { $sort: { "players.wickets": -1 } },
+              {
+                $group: {
+                  _id: null,
+                  maxWickets: { $max: "$players.wickets" },
+                  players: {
+                    $push: {
+                      name: "$players.name",
+                      wickets: "$players.wickets",
+                    },
+                  },
+                },
+              },
+              {
+                $project: {
+                  topBowlers: {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$players",
+                          as: "player",
+                          cond: { $eq: ["$$player.wickets", "$maxWickets"] },
+                        },
+                      },
+                      as: "p",
+                      in: "$$p.name",
+                    },
+                  },
+                },
+              },
+            ],
+            // Top Catchers
+            topCatches: [
+              { $unwind: "$players" },
+              { $match: { "players.catch": { $exists: true, $gt: 0 } } },
+              { $sort: { "players.catch": -1 } },
+              {
+                $group: {
+                  _id: null,
+                  maxCatches: { $max: "$players.catch" },
+                  players: {
+                    $push: { name: "$players.name", catches: "$players.catch" },
+                  },
+                },
+              },
+              {
+                $project: {
+                  topFielders: {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$players",
+                          as: "player",
+                          cond: { $eq: ["$$player.catches", "$maxCatches"] },
+                        },
+                      },
+                      as: "p",
+                      in: "$$p.name",
+                    },
+                  },
+                },
+              },
+            ],
+            // Top Six Hitters
+            topSixes: [
+              { $unwind: "$players" },
+              { $match: { "players.sixes": { $exists: true, $gt: 0 } } },
+              { $sort: { "players.sixes": -1 } },
+              {
+                $group: {
+                  _id: null,
+                  maxSixes: { $max: "$players.sixes" },
+                  players: {
+                    $push: { name: "$players.name", sixes: "$players.sixes" },
+                  },
+                },
+              },
+              {
+                $project: {
+                  topHitters: {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$players",
+                          as: "player",
+                          cond: { $eq: ["$$player.sixes", "$maxSixes"] },
+                        },
+                      },
+                      as: "p",
+                      in: "$$p.name",
+                    },
+                  },
+                },
+              },
+            ],
           },
         },
         {
           $project: {
-            _id: 0,
-            mostRuns: "$mostRuns.name",
-            runs: "$mostRuns.runs",
-            mostWickets: "$mostWickets.name",
-            wickets: "$mostWickets.wickets",
-            mostCatches: "$mostCatches.name",
-            catches: "$mostCatches.catch",
-            mostSixes: "$mostSixes.name",
-            sixes: "$mostSixes.sixes",
-            t1s: 1,
-            t2s: 1,
-            status: 1,
+            matchInfo: { $arrayElemAt: ["$matchInfo", 0] },
+            mostRuns: { $arrayElemAt: ["$topRuns.topScorers", 0] },
+            mostWickets: { $arrayElemAt: ["$topWickets.topBowlers", 0] },
+            mostCatches: { $arrayElemAt: ["$topCatches.topFielders", 0] },
+            mostSixes: { $arrayElemAt: ["$topSixes.topHitters", 0] },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                "$matchInfo",
+                {
+                  mostRuns: "$mostRuns",
+                  mostWickets: "$mostWickets",
+                  mostCatches: "$mostCatches",
+                  mostSixes: "$mostSixes",
+                },
+              ],
+            },
           },
         },
       ]);
-      console.log(summary);
+
+      if (summary && summary.length) {
+        await Match.updateOne(
+          { matchId: match.matchId },
+          {
+            $set: {
+              mostRuns: summary[0].mostRuns,
+              mostWickets: summary[0].mostWickets,
+              mostCatches: summary[0].mostCatches,
+              mostSixes: summary[0].mostSixes,
+              t1s: summary[0].t1s,
+              t2s: summary[0].t2s,
+              status: summary[0].status,
+              matchStarted: summary[0].matchStarted,
+              matchEnded: summary[0].matchEnded,
+              tossWinner: summary[0].tossWinner,
+              matchWinner: summary[0].matchWinner,
+            },
+          }
+        );
+
+        calculateAndStore(match.id);
+      }
     }
   } catch (error) {
     console.log(error);
