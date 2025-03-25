@@ -10,6 +10,7 @@ import { TournamentComponent } from './dashboard/tournament/tournament.component
 import { TournamentConfigurationComponent } from './dashboard/tournament-configuration/tournament-configuration.component';
 import { PrivateComponent } from './private.component';
 import { PredictionComponent } from './dashboard/tournament/prediction/prediction.component';
+import { AlertComponent } from './dashboard/alert/alert.component';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { PredictionComponent } from './dashboard/tournament/prediction/predictio
     TournamentConfigurationComponent,
     PrivateComponent,
     PredictionComponent,
+    AlertComponent,
   ],
   imports: [
     CommonModule,
