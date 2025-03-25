@@ -24,6 +24,7 @@ const teamsObj = {
   "Lucknow Super Giants": "LSG",
   "Gujarat Titans": "GT",
 };
+
 // const API_KEY = "b1730717-b60e-4809-a631-37143da63010";
 // const API_KEY = "203fdcb6-99e1-41e7-95da-62f38dedb565";
 const API_KEY = "ea6a4521-2526-4eb1-ac03-b01f3bede206";
