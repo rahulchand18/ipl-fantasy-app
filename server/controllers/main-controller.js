@@ -25,9 +25,10 @@ const teamsObj = {
   "Gujarat Titans": "GT",
 };
 
-// const API_KEY = "b1730717-b60e-4809-a631-37143da63010";
-// const API_KEY = "203fdcb6-99e1-41e7-95da-62f38dedb565";
-const API_KEY = "ea6a4521-2526-4eb1-ac03-b01f3bede206";
+const API_KEY1 = "b1730717-b60e-4809-a631-37143da63010";
+const API_KEY2 = "203fdcb6-99e1-41e7-95da-62f38dedb565";
+const API_KEY3 = "ea6a4521-2526-4eb1-ac03-b01f3bede206";
+const API_KEYS = [API_KEY1, API_KEY2, API_KEY3];
 cron.schedule("20 13 * * *", () => {
   console.log("Match deactivate started.");
   deactivateMatch();
@@ -38,11 +39,11 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("0 14-19 * * *", () => {
+cron.schedule("0 10,12,14,16,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
-cron.schedule("5 14-19 * * *", () => {
+cron.schedule("05,30 10-19 * * *", () => {
   console.log("Match Import Start");
   importFromScorecard();
 });
@@ -970,10 +971,10 @@ const importScoreCard = async () => {
       matchStarted: true,
     });
     for (const match of activeMatches) {
+      const randomAPIKey = API_KEYS[Math.floor(Math.random() * 3)];
       console.log(match.id);
-      const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${API_KEY}&id=${match.matchId}`;
+      const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${randomAPIKey}&id=${match.matchId}`;
       const response = await axios.get(url);
-      // const response = require("/home/javra/Documents/ipl/ipl-2025/scorecard-sample.json");
       const matchResponse = response.data?.data;
       const matchData = {
         id: matchResponse.id,
