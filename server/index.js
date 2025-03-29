@@ -12,6 +12,9 @@ const bodyParser = require("body-parser");
 const app = express();
 const mongooseConnect = require("./db/conn");
 const morgan = require("morgan");
+const logStdout = process.stdout;
+const util = require("util");
+
 // const User = require('./models/user');
 // const { editSaveController } = require('./controllers/user.controller');
 // const Uservevar http = require("http");
@@ -53,6 +56,12 @@ app.use(cors(corsOptions));
 
 //Setting UP Multer for image
 app.use(morgan(":method :url :status :response-time :date"));
+
+console.log = function () {
+  logStdout.write(
+    new Date().toString() + "  " + util.format.apply(null, arguments) + "\n"
+  );
+};
 
 app.use("", router);
 
