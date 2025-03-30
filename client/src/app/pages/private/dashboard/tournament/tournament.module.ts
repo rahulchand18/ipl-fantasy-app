@@ -7,6 +7,8 @@ import { SeasonPointsTableComponent } from './season-points-table/season-points-
 import { ResultsComponent } from './results/results.component';
 import { SummaryComponent } from './summary/summary.component';
 import { RulesComponent } from './rules/rules.component';
+import { FantasyComponent } from './fantasy/fantasy.component';
+import { MATERIAL_MODULE } from 'src/app/core/constants/material';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,8 @@ import { RulesComponent } from './rules/rules.component';
     ResultsComponent,
     SummaryComponent,
     RulesComponent,
+    FantasyComponent,
   ],
-  imports: [CommonModule, TournamentRoutingModule],
+  imports: [CommonModule, TournamentRoutingModule, ...MATERIAL_MODULE],
 })
-export class TournamentModule {}
+export class TournamentModule { }

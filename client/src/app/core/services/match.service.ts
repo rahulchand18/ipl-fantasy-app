@@ -75,6 +75,9 @@ export class MatchService {
   getPlayers(matchId: string): Observable<any> {
     return this.http.get(`/getPlayers/${matchId}`);
   }
+  getPlayersForFantasy(matchId: string): Observable<any> {
+    return this.http.get(`/getPlayersForFantasy/${matchId}`);
+  }
   updatePrediction(body: any): Observable<any> {
     return this.http.put(`/updatePrediction/`, body);
   }

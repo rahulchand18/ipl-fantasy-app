@@ -8,6 +8,7 @@ import { SeasonPointsTableComponent } from './season-points-table/season-points-
 import { ResultsComponent } from './results/results.component';
 import { SummaryComponent } from './summary/summary.component';
 import { RulesComponent } from './rules/rules.component';
+import { FantasyComponent } from './fantasy/fantasy.component';
 
 const routes: Routes = [
   {
@@ -47,11 +48,15 @@ const routes: Routes = [
     component: TournamentConfigurationComponent,
     data: { title: 'Tournament' },
     title: 'Dashboard',
-  },
+  }, {
+    path: 'fantasy/:matchId',
+    component: FantasyComponent,
+    data: { title: 'Fantasy' },
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class TournamentRoutingModule {}
+export class TournamentRoutingModule { }

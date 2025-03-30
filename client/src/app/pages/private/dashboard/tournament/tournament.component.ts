@@ -56,7 +56,8 @@ export class TournamentComponent {
 
   goToPrediction(matchId: string, active: boolean) {
     if (active) {
-      this.router.navigate([`/u/tournament/prediction`], {
+      // this.router.navigate([`/u/tournament/prediction`], {
+      this.router.navigate([`/u/tournament/fantasy/${matchId}`], {
         queryParams: { matchId },
       }).then(() => this.scrollToOutlet());
     } else {

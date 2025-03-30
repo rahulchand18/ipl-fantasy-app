@@ -12,6 +12,7 @@ const cron = require("node-cron");
 const notificationModel = require("../models/notification.model");
 const MatchList = require("../models/matchList.model");
 const Scorecard = require("../models/scorecard.model");
+const FantasyTeamModel = require("../models/team-model");
 const teamsObj = {
   "Mumbai Indians": "MI",
   "Chennai Super Kings": "CSK",
@@ -437,6 +438,83 @@ const getPlayers = async (req, res) => {
       const teams = await Teams.find({
         shortname: { $in: [match.t1, match.t2] },
       });
+      return res.send({ data: teams });
+    } else {
+      return res.status(500).send("error");
+    }
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
+const getPlayersForFantasy = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const match = await Match.findOne({ id: matchId });
+    if (match) {
+      const teams = await Teams.aggregate([
+        {
+          $match: {
+            shortname: { $in: [match.t1, match.t2] },
+          },
+        },
+        {
+          $unwind: "$players",
+        },
+        {
+          $addFields: {
+            "players.team": "$shortname",
+            "players.role": {
+              $switch: {
+                branches: [
+                  {
+                    case: {
+                      $in: [
+                        "$players.role",
+                        ["Batting Allrounder", "Bowling Allrounder"],
+                      ],
+                    },
+                    then: "Allrounder",
+                  },
+                ],
+                default: "$players.role",
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: "$players.role",
+            players: { $push: "$players" },
+          },
+        },
+        {
+          $facet: {
+            "WK-Batsman": [{ $match: { _id: "WK-Batsman" } }],
+            Batsman: [{ $match: { _id: "Batsman" } }],
+            Allrounder: [{ $match: { _id: "Allrounder" } }],
+            Bowler: [{ $match: { _id: "Bowler" } }],
+          },
+        },
+        {
+          $project: {
+            data: {
+              $concatArrays: [
+                "$WK-Batsman",
+                "$Batsman",
+                "$Allrounder",
+                "$Bowler",
+              ],
+            },
+          },
+        },
+        {
+          $unwind: "$data",
+        },
+        {
+          $replaceRoot: { newRoot: "$data" },
+        },
+      ]);
       return res.send({ data: teams });
     } else {
       return res.status(500).send("error");
@@ -1268,6 +1346,121 @@ const importFromScorecard = async () => {
   }
 };
 
+const addNewFantasyTeam = async (req, res) => {
+  try {
+    const predictionData = req.body;
+    const { matchId, email } = predictionData;
+    const existingPrediction = await FantasyTeamModel.findOne({
+      matchId,
+      email,
+    });
+    if (existingPrediction) {
+      return res.status(400).json({
+        message: "You have already made a prediction for this match",
+      });
+    } else {
+      const { players } = predictionData;
+
+      const { allow, message } = checkTeam(players);
+
+      if (allow) {
+        await FantasyTeamModel.create(predictionData);
+        return res.status(200).send({ message: "Team Created Successfully" });
+      } else {
+        return res.status(400).json({
+          message: message.join(","),
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error.stack);
+    return res.status(500).send({ message: error.message });
+  }
+};
+
+const updateFantasyTeam = async (req, res) => {
+  try {
+    const predictionData = req.body;
+    const { matchId, email } = predictionData;
+    const existingPrediction = await FantasyTeamModel.findOne({
+      matchId,
+      email,
+    });
+    if (existingPrediction) {
+      const { players } = predictionData;
+      const { allow, message } = checkTeam(players);
+      if (allow) {
+        await FantasyTeamModel.updateOne({ matchId, email }, predictionData);
+        return res.status(200).send({ message: "Team Updated Successfully" });
+      } else {
+        return res.status(400).json({
+          message: message.join(","),
+        });
+      }
+    } else {
+      return res.status(400).json({
+        message: "You have not made a prediction for this match",
+      });
+    }
+  } catch (error) {
+    console.log(error.stack);
+    return res.status(500).send({ message: error.message });
+  }
+};
+
+const getAllPredictionsByMatch = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const predictions = await FantasyTeamModel.aggregate([
+      {
+        $match: {
+          matchId: matchId,
+        },
+      },
+    ]);
+  } catch (error) {
+    console.log(error.stack);
+    return res.status(500).send({ message: error.message });
+  }
+};
+
+function checkTeam(players) {
+  let allow = true;
+  const message = [];
+  if (players.length !== 11) {
+    allow = false;
+    message.push("Players should be 11");
+  }
+  let bowlerCount = 0;
+  let batsmanCount = 0;
+  let wicketKeeperCount = 0;
+  players.forEach((player) => {
+    if (player.role === "Batsman") {
+      batsmanCount++;
+    }
+    if (player.role === "Bowler") {
+      bowlerCount++;
+    }
+    if (player.role === "WK-Batsman") {
+      wicketKeeperCount++;
+    }
+  });
+  if (batsmanCount < 2) {
+    allow = false;
+    message.push("Select at least 2 batsman");
+  }
+  if (bowlerCount < 2) {
+    allow = false;
+    message.push("Select at least 2 bowler");
+  }
+  if (wicketKeeperCount < 1) {
+    allow = false;
+    message.push("Select at least 1 wicket keeper");
+  }
+
+  return allow ? { allow } : { allow, message };
+}
+
 const mainController = {
   getAllSeries,
   createMatch,
@@ -1297,6 +1490,8 @@ const mainController = {
   uploadPhoto,
   getSummary,
   getNotifications,
+  addNewFantasyTeam,
+  getPlayersForFantasy,
 };
 
 module.exports = mainController;

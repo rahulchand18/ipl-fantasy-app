@@ -117,6 +117,10 @@ router.put("/updateMatchStatus/:id", mainController.updateMatchStatus);
 router.put("/updateCompleteStatus/:id", mainController.updateCompleteStatus);
 router.get("/getPrediction/:matchId/:email", mainController.getPrediction);
 router.get("/getPlayers/:matchId", mainController.getPlayers);
+router.get(
+  "/getPlayersForFantasy/:matchId",
+  mainController.getPlayersForFantasy
+);
 router.post("/createPrediction", mainController.createPrediction);
 router.put("/updatePrediction", mainController.updatePrediction);
 router.put("/calculate/:matchId", mainController.calculatePoints);
