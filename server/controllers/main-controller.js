@@ -1256,6 +1256,8 @@ const importFromScorecard = async () => {
        
       ]);
 
+      console.log(111, summary);
+
       if (summary && summary.length) {
         await Match.updateOne(
           { matchId: match.matchId },
