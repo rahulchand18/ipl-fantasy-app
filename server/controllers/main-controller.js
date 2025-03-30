@@ -39,7 +39,7 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("0 10,12,14,16,18,19 * * *", () => {
+cron.schedule("0 10,11,12,14,16,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
@@ -992,6 +992,7 @@ const importScoreCard = async () => {
         matchStarted: matchResponse.matchStarted,
         matchEnded: matchResponse.matchEnded,
       };
+      console.log(995, matchResponse);
       const players = [];
 
       for (const inning of matchResponse.scorecard) {
