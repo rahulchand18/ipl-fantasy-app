@@ -43,7 +43,7 @@ cron.schedule("0 10,11,12,14,16,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
-cron.schedule("05,30 10-19 * * *", () => {
+cron.schedule("05,15,30 10-19 * * *", () => {
   console.log("Match Import Start");
   importFromScorecard();
 });
@@ -1238,8 +1238,7 @@ const importFromScorecard = async () => {
               ],
             },
           },
-        }
-       
+        },
       ]);
 
       console.log(111, summary);
