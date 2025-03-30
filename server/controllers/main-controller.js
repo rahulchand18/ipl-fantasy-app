@@ -1238,21 +1238,6 @@ const importFromScorecard = async () => {
               ],
             },
           },
-        },
-        {
-          $replaceRoot: {
-            newRoot: {
-              $mergeObjects: [
-                "$matchInfo",
-                {
-                  "mostRuns": "$mostRuns",
-                  "mostWickets": "$mostWickets",
-                  "mostCatches": "$mostCatches",
-                  "mostSixes": "$mostSixes"
-                }
-              ]
-            }
-          }
         }
        
       ]);
