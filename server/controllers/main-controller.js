@@ -40,7 +40,7 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("15 10,11,12,14,16,18,19 * * *", () => {
+cron.schedule("15 10,11,12,14,16,17,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
