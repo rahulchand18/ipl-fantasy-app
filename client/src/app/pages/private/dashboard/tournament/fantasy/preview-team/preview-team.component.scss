@@ -1,0 +1,144 @@
+.container1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  // padding: 20px;
+  //   min-height: 100vh;
+  // Ensures full height
+
+  // Background image with fade effect
+  background: url("../../../../../../../assets/images/bg-img.png") no-repeat
+    center center/cover;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    opacity: 0.3; // Adjust opacity for fading effect
+    z-index: -1;
+  }
+
+  .preview-section {
+    width: 100%;
+    max-width: 800px;
+    background: rgba(0, 0, 0, 0.6); // Slight transparency for contrast
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+  }
+
+  // Common section styling
+  .wk-batsman-section,
+  .batsman-section,
+  .allrounder-section,
+  .bowler-section {
+    .role {
+      background-color: #ddd;
+      border-radius: 5px;
+      padding: 5px;
+      color: black;
+    }
+    margin-bottom: 5px;
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  span {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .d-flex {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .player-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    // background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    width: 100px;
+    text-align: center;
+    position: relative;
+
+    img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+    .team {
+      position: absolute;
+      top: 10px;
+      left: 0;
+      background-color: rgba(255, 255, 255, 0.307);
+      color: black;
+      height: max-content;
+      padding: 7px;
+      border-radius: 5px;
+      font-size: xx-small;
+    }
+
+    .fs-7 {
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      margin-top: 5px;
+    }
+
+    sub {
+      font-size: 12px;
+      color: #ddd;
+    }
+  }
+
+  .captain {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+    background: gold;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .vice-captain {
+    @extend .captain;
+    background: silver;
+  }
+}
+
+// Responsive Design
+@media (max-width: 600px) {
+  .player-section {
+    width: 80px;
+  }
+
+  .player-section img {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  div {
+    font-size: small;
+  }
+}

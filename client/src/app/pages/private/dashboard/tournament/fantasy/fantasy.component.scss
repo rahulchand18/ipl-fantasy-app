@@ -1,0 +1,222 @@
+// Define theme colors
+$primary-color: #007bff;
+$secondary-color: #ff6f61;
+$bg-color: #f4f7f9;
+$card-bg: #ffffff;
+$shadow-color: rgba(0, 0, 0, 0.1);
+
+.container1 {
+  // max-width: 1200px;
+  width: 100vw;
+  // margin: auto;
+  // padding: 20px;
+  background: url("/assets/background.jpg") no-repeat center center/cover;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px $shadow-color;
+  text-align: center;
+
+  h1 {
+    color: $primary-color;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .d-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .select-section,
+  .preview-section {
+    flex: 1;
+    // min-width: 300px;
+    width: 100vw;
+    // padding: 20px;
+    // background: $card-bg;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px $shadow-color;
+  }
+
+  .player-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0px 2px 6px $shadow-color;
+    margin-bottom: 10px;
+    transition: transform 0.2s ease-in-out;
+
+    // &:hover {
+    //   transform: scale(1.02);
+    // }
+
+    .section {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid $primary-color;
+      }
+
+      .player-info {
+        text-align: left;
+
+        .player-name {
+          font-weight: bold;
+          color: $primary-color;
+        }
+
+        .player-team {
+          font-size: 14px;
+          color: #666;
+        }
+      }
+    }
+
+    button {
+      // border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .add-btn {
+      width: 30px;
+      height: 30px;
+      background-color: green;
+      color: white;
+
+      &:hover {
+        background-color: darken($primary-color, 10%);
+      }
+    }
+
+    .remove-btn {
+      background-color: $secondary-color;
+      color: white;
+
+      &:hover {
+        background-color: darken($secondary-color, 10%);
+      }
+    }
+  }
+
+  // Player Categories
+  .preview-section {
+    h2 {
+      color: $secondary-color;
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+
+    .wk-section,
+    .batsman-section,
+    .allrounder-section,
+    .bowler-section {
+      background: linear-gradient(135deg, $primary-color, $secondary-color);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0px 3px 8px $shadow-color;
+      margin-bottom: 15px;
+
+      span {
+        font-weight: bold;
+        color: white;
+        font-size: 18px;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .player-card {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        div {
+          font-weight: bold;
+          color: $primary-color;
+        }
+      }
+    }
+  }
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid white;
+  }
+  // Responsive Design
+  @media (max-width: 768px) {
+    .d-flex {
+      flex-direction: column;
+    }
+    div {
+      font-size: small;
+    }
+  }
+
+  .disabled {
+    background-color: rgba(0, 128, 0, 0.335) !important;
+    pointer-events: none;
+  }
+
+  .circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &.selected {
+      background-color: #ffcc00;
+      color: #fff;
+      border-color: #ffcc00;
+    }
+
+    &:hover {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+  }
+  .selected {
+    background-color: #007bff;
+  }
+}
+.fs-7 {
+  font-size: small;
+}
+.player-section {
+  position: relative;
+  .captain {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    font-size: x-small !important;
+    border-radius: 50%;
+    background-color: #007bff;
+    position: absolute;
+    top: 0;
+    left: 50%;
+  }
+}

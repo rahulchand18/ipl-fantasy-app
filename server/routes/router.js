@@ -122,6 +122,12 @@ router.get(
   mainController.getPlayersForFantasy
 );
 router.post("/createPrediction", mainController.createPrediction);
+router.post("/addNewFantasyTeam", mainController.addNewFantasyTeam);
+router.get("/getOnePrediction", mainController.getOnePrediction);
+router.get(
+  "/getAllPredictionsByMatch",
+  mainController.getAllPredictionsByMatch
+);
 router.put("/updatePrediction", mainController.updatePrediction);
 router.put("/calculate/:matchId", mainController.calculatePoints);
 router.get("/getPointsTable/:matchId", mainController.getPointsTable);

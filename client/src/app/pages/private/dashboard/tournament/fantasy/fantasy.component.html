@@ -1,0 +1,51 @@
+<div class="container1">
+  <h1>Select Your Team</h1>
+  <div class="d-flex w-100 gap-2">
+    <div class="select-section">
+      <mat-tab-group *ngIf="players && players.length">
+        <mat-tab *ngFor="let type of players" [label]="type._id" #tab>
+          <div class="player-card align-items-center" *ngFor="let player of type.players; let i = index">
+            <div class="section">
+              <img [src]="player.playerImg" alt="Player Image" />
+              <div class="player-info">
+                <span class="player-name"><strong>{{ player.name }}</strong></span>
+                <div class="player-team">{{ player.team }}</div>
+              </div>
+            </div>
+            <button mat-button class="add-btn {{
+                (selectedCounts[type._id] || 0) >= 5 ||
+                selectedPlayers.length >= 11
+                  ? 'disabled'
+                  : ''
+              }}" (click)="pushIntoSelected(player, type._id)" *ngIf="!checkInArray(player)" [disabled]="
+                (selectedCounts[type._id] || 0) >= 5 ||
+                selectedPlayers.length >= 11
+              ">
+              +
+            </button>
+            <ng-container *ngIf="checkInArray(player)">
+              <div class="d-flex  align-items-center gap-2">
+                <span
+                  class="border circle {{player.id === captain?'selected':''}} {{viceCaptain === player.id?'disabled':''}}"
+                  (click)="captain = player.id !== captain?player.id:''">C</span>
+                <span
+                  class="border circle {{player.id === viceCaptain?'selected':''}} {{captain === player.id?'disabled':''}}"
+                  (click)="viceCaptain=player.id !== viceCaptain?player.id:''">VC</span>
+                <button mat-button class="remove-btn" (click)="removeFromArray(player,type._id)">
+                  -
+                </button>
+              </div>
+            </ng-container>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+    <div class="preview-section">
+      <h2>Selected Players</h2>
+      <app-preview-team [captain]="captain" [viceCaptain]="viceCaptain"
+        [selectedPlayers]="selectedPlayers"></app-preview-team>
+
+      <button mat-flat-button color="primary" class="w-50 m-auto mt-4" (click)="saveTeam()">Save</button>
+    </div>
+  </div>
+</div>

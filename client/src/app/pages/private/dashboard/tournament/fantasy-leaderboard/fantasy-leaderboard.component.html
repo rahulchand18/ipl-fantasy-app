@@ -1,0 +1,58 @@
+<div class="leaderboard-container">
+    @if(allPredictions && allPredictions.length) {
+    <h1 class="text-center title">🏆 Leaderboard</h1>
+
+    <div class="d-flex flex-wrap gap-4 justify-content-center">
+        <!-- Leaderboard Section -->
+        <div class="select-section">
+            <h4>Top Players</h4>
+            <div class="player-list">
+                <div *ngFor="let item of allPredictions; let i = index" (click)="selectTeam(item)" class="player-card"
+                    [ngClass]="{'active': selectedTeam === item}">
+
+                    <!-- Rank -->
+                    <div class="rank">#{{i+1}}</div>
+
+                    <!-- Player Info -->
+                    <div class="player-info">
+                        <img class="profile-img"
+                            [src]="item.user.img ? authService.getProfileUrl(item.user.img) : 'assets/images/default.png'" />
+                        <span>{{ item.user.firstName }} {{ item.user.lastName }}</span>
+                    </div>
+
+                    <!-- Captain & Vice-Captain -->
+                    <div class="captain-info">
+                        <div class="player-name">
+                            <span class="cap">C</span>
+                            <img [src]="item.captain.img" class="mini-img" />
+                            <sub class="mt-2">{{item.captain.name.split('')[0]}}. {{item.captain.name.split('
+                                ')[1]}}</sub>
+                        </div>
+                        <div class="player-name">
+                            <span class="cap">VC</span>
+                            <img [src]="item.viceCaptain.img" class="mini-img" />
+                            <sub class="mt-2">{{item.viceCaptain.name.split('')[0]}}. {{item.viceCaptain.name.split('
+                                ')[1]}}</sub>
+                        </div>
+                    </div>
+
+                    <!-- Points -->
+                    <div class="points">
+                        <strong>{{ item.totalPoints }}</strong> pts
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section" *ngIf="selectedTeam" #previewSection>
+            <h2 class="text-center">📋 Preview Team</h2>
+            <app-preview-team [captain]="selectedTeam.captain.id" [viceCaptain]="selectedTeam.viceCaptain.id"
+                [selectedPlayers]="selectedTeam.players" [showPoints]="true"></app-preview-team>
+        </div>
+    </div>
+
+    } @else {
+    <div class="alert alert-danger text-center">❌ Predictions Locked at the moment.</div>
+    }
+</div>

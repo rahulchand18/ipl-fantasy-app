@@ -1,0 +1,27 @@
+<div class="container1">
+    <div class="preview-section">
+        <ng-container *ngFor="let role of ['WK-Batsman', 'Batsman', 'Allrounder', 'Bowler']">
+            <div [class]="role.toLowerCase() + '-section'">
+                <span class="w-50 m-auto role">{{ role === 'WK-Batsman' ? 'Wicket Keepers' : role }}</span>
+                <div class="d-flex justify-content-center align-items-center">
+                    <ng-container *ngFor="let player of selectedPlayers">
+                        @if(player.role === role){
+                        <div class="player-section align-items-center">
+                            <div>
+                                <img [src]="player.img" />
+                                <div class="fs-7">{{ player.name }}</div>
+                                <sub class="team">{{player.team}}</sub>
+                                <sub *ngIf="showPoints">{{points(player)}}</sub>
+                            </div>
+                            <span *ngIf="captain === player.id"
+                                class="border captain d-flex align-items-center">C</span>
+                            <span *ngIf="viceCaptain === player.id"
+                                class="border captain d-flex align-items-center">VC</span>
+                        </div>
+                        }
+                    </ng-container>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

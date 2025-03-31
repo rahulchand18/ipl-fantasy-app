@@ -12,7 +12,7 @@ const cron = require("node-cron");
 const notificationModel = require("../models/notification.model");
 const MatchList = require("../models/matchList.model");
 const Scorecard = require("../models/scorecard.model");
-const FantasyTeamModel = require("../models/team-model");
+const FantasyTeamModel = require("../models/fantasy-team-model");
 const teamsObj = {
   "Mumbai Indians": "MI",
   "Chennai Super Kings": "CSK",
@@ -40,20 +40,25 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("0 10,12,14,16,18,19 * * *", () => {
+cron.schedule("15 10,11,12,14,16,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
-cron.schedule("05,30 10-19 * * *", () => {
+cron.schedule("20,40 10-19 * * *", () => {
   console.log("Match Import Start");
   importFromScorecard();
+});
+
+cron.schedule("*/20 14-23 * * *", () => {
+  console.log("Fantasy Points Update Start");
+  updateFantasyPoints();
 });
 
 const deactivateMatch = async () => {
   try {
     await Match.updateOne(
       { active: true, history: false },
-      { $set: { active: false } }
+      { $set: { active: false, matchStarted: true } }
     );
     console.log("Match Deactivated");
   } catch (error) {
@@ -577,6 +582,7 @@ const calculatePoints = async (req, res) => {
   try {
     const { matchId } = req.params;
     await calculateAndStore(matchId);
+    await updateFantasyPoints();
     return res.send(true);
   } catch (error) {
     return res.status(500).send(error);
@@ -1076,6 +1082,7 @@ const importScoreCard = async () => {
         for (const player of inning.batting) {
           const playerData = {
             name: player.batsman.name,
+            id: player.batsman.id,
             runs: player.r,
             balls: player.b,
             sixes: player["6s"],
@@ -1087,16 +1094,21 @@ const importScoreCard = async () => {
         for (const player of inning.bowling) {
           const playerData = {
             name: player.bowler.name,
+            id: player.bowler.id,
             overs: player.o,
             maidens: player.m,
             wickets: player.w,
+            economyRate: player.eco,
           };
           players.push(playerData);
         }
         for (const player of inning.catching) {
           const playerData = {
             name: player.catcher.name,
+            id: player.catcher.id,
             catch: player.catch,
+            runout: player.runout,
+            stumping: player.stumped,
           };
           players.push(playerData);
         }
@@ -1350,16 +1362,20 @@ const addNewFantasyTeam = async (req, res) => {
   try {
     const predictionData = req.body;
     const { matchId, email } = predictionData;
+    const match = await Match.findOne({ id: matchId });
+    if (!match.active) {
+      return res.status(400).json({ message: "Match is not active" });
+    }
     const existingPrediction = await FantasyTeamModel.findOne({
       matchId,
       email,
     });
     if (existingPrediction) {
-      return res.status(400).json({
-        message: "You have already made a prediction for this match",
-      });
+      return await updateFantasyTeam(req, res);
     } else {
       const { players } = predictionData;
+
+      predictionData.id = match?.matchId;
 
       const { allow, message } = checkTeam(players);
 
@@ -1408,16 +1424,111 @@ const updateFantasyTeam = async (req, res) => {
   }
 };
 
+const getOnePrediction = async (req, res) => {
+  try {
+    const { matchId, email } = req.query;
+    const predictions = await FantasyTeamModel.findOne({ matchId, email });
+    if (predictions) {
+      return res.status(200).send({ data: predictions });
+    } else {
+      return res.status(400).json({
+        message: "No predictions found for this match",
+      });
+    }
+  } catch (error) {
+    console.log(error.stack);
+    return res.status(500).send({ message: error.message });
+  }
+};
 const getAllPredictionsByMatch = async (req, res) => {
   try {
-    const { matchId } = req.params;
+    const { matchId } = req.query;
     const predictions = await FantasyTeamModel.aggregate([
       {
         $match: {
-          matchId: matchId,
+          matchId,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "email",
+          foreignField: "email",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $unwind: "$players",
+      },
+      {
+        $group: {
+          _id: "$email",
+          user: { $first: "$user" },
+          date: { $first: "$createdAt" },
+          players: { $push: "$players" }, // Re-group players into an array
+          totalPoints: {
+            $sum: {
+              $cond: [
+                { $eq: ["$players.isCaptain", true] },
+                { $multiply: ["$players.points", 2] }, // Double captain's points
+                {
+                  $cond: [
+                    { $eq: ["$players.isViceCaptain", true] },
+                    { $multiply: ["$players.points", 1.5] }, // 1.5x vice-captain's points
+                    "$players.points", // Normal points for other players
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          captain: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: "$players",
+                  as: "player",
+                  cond: { $eq: ["$$player.isCaptain", true] },
+                },
+              },
+              0,
+            ],
+          },
+          viceCaptain: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: "$players",
+                  as: "player",
+                  cond: { $eq: ["$$player.isViceCaptain", true] },
+                },
+              },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          totalPoints: -1,
+          date: 1, // Prefer the first created team if points are the same
         },
       },
     ]);
+
+    if (predictions && predictions.length) {
+      return res.status(200).send({ data: predictions });
+    } else {
+      return res.status(400).json({
+        message: "No predictions found for this match",
+      });
+    }
   } catch (error) {
     console.log(error.stack);
     return res.status(500).send({ message: error.message });
@@ -1461,6 +1572,92 @@ function checkTeam(players) {
   return allow ? { allow } : { allow, message };
 }
 
+const updateFantasyPoints = async () => {
+  const activeMatches = await Match.find({
+    history: false,
+    matchStarted: true,
+  });
+  for (const match of activeMatches) {
+    const scoreCard = await Scorecard.findOne({ id: match.matchId });
+
+    console.log(scoreCard);
+    if (scoreCard) {
+      const playersWithPoints = getPlayersPoints(scoreCard.players, match);
+      console.log(playersWithPoints);
+      for (const player of playersWithPoints) {
+        await FantasyTeamModel.updateMany(
+          {
+            matchId: match.id,
+            "players.id": player.id,
+          },
+          {
+            $set: {
+              "players.$.points": player.points,
+            },
+          }
+        );
+        console.log(`Done for ${player.name}`);
+      }
+    }
+  }
+};
+
+const getPlayersPoints = (players, match) => {
+  const playerWithPoints = [];
+  players.forEach((player) => {
+    let points = 0;
+
+    // Batting Points
+    if (player.runs) {
+      points += player.runs; // 1 point per run
+      if (player.runs >= 50) points += 10; // 50-run bonus
+      if (player.runs >= 100) points += 25; // 100-run bonus
+    }
+    if (player.runs === 0) {
+      if (player.balls === 1) {
+        points -= 4;
+      } else {
+        points -= 2; // Duck penalty
+      }
+    }
+    if (player.fours) points += player.fours * 2; // 1 point per boundary
+    if (player.sixes) points += player.sixes * 4; // 2 points per six
+
+    // Bowling Points
+    if (player.wickets) {
+      points += player.wickets * 25; // 25 points per wicket
+      if (player.wickets >= 3) points += 10; // 3-wicket bonus
+      if (player.wickets >= 5) points += 25; // 5-wicket bonus
+    } else {
+      points -= 2; // No wicket penalty
+    }
+
+    // Economy Rate Points
+    if (player.overs && player.economyRate !== undefined) {
+      if (player.economyRate <= 6) {
+        points += 4;
+      } else if (player.economyRate <= 8.5) {
+        points += 2;
+      } else if (player.economyRate > 9) {
+        points -= 2;
+      }
+    }
+
+    // Fielding Points
+    if (player.catch) points += player.catch * 8; // 8 points per catch
+    if (player.runout) points += player.runout * 12; // 12 points per runout
+    if (player.stumping) points += player.stumping * 12; // 12 points per stumping
+    if (player.name === match.manOfTheMatch) points += 25; // 25 points per manOfTheMatch
+
+    playerWithPoints.push({
+      name: player.name,
+      points,
+      id: player.id,
+    });
+  });
+  return playerWithPoints;
+};
+
 const mainController = {
   getAllSeries,
   createMatch,
@@ -1492,6 +1689,9 @@ const mainController = {
   getNotifications,
   addNewFantasyTeam,
   getPlayersForFantasy,
+  getOnePrediction,
+  getAllPredictionsByMatch,
+  updateFantasyPoints,
 };
 
 module.exports = mainController;

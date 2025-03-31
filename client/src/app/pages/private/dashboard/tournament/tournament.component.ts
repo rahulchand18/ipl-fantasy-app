@@ -56,14 +56,23 @@ export class TournamentComponent {
 
   goToPrediction(matchId: string, active: boolean) {
     if (active) {
-      // this.router.navigate([`/u/tournament/prediction`], {
-      this.router.navigate([`/u/tournament/fantasy/${matchId}`], {
+      this.router.navigate([`/u/tournament/prediction`], {
         queryParams: { matchId },
       }).then(() => this.scrollToOutlet());
     } else {
       this.router.navigate([`/u/tournament/points-table`], {
         queryParams: { matchId },
       }).then(() => this.scrollToOutlet());
+    }
+  }
+  goToFantasy(matchId: string, active: boolean) {
+    if (active) {
+      // this.router.navigate([`/u/tournament/prediction`], {
+      this.router.navigate([`/u/tournament/fantasy/${matchId}`], {
+      }).then(() => this.scrollToOutlet());
+    } else {
+      this.router.navigate([`/u/tournament/fantasy-leaderboard/${matchId}`])
+        .then(() => this.scrollToOutlet());
     }
   }
 

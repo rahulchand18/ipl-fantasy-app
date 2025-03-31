@@ -84,6 +84,15 @@ export class MatchService {
   createPrediction(body: any): Observable<any> {
     return this.http.post(`/createPrediction/`, body);
   }
+  addNewFantasyTeam(body: any): Observable<any> {
+    return this.http.post(`/addNewFantasyTeam/`, body);
+  }
+  getOnePrediction(matchId: string, email: string): Observable<any> {
+    return this.http.get(`/getOnePrediction/`, { matchId, email });
+  }
+  getAllPredictionsByMatch(matchId: string): Observable<any> {
+    return this.http.get(`/getAllPredictionsByMatch/`, { matchId });
+  }
   calculate(matchId: string): Observable<any> {
     return this.http.put(`/calculate/${matchId}`);
   }

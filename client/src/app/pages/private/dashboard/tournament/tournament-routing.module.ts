@@ -9,6 +9,8 @@ import { ResultsComponent } from './results/results.component';
 import { SummaryComponent } from './summary/summary.component';
 import { RulesComponent } from './rules/rules.component';
 import { FantasyComponent } from './fantasy/fantasy.component';
+import { matchActiveGuard } from 'src/app/core/guards/match-active.guard';
+import { FantasyLeaderboardComponent } from './fantasy-leaderboard/fantasy-leaderboard.component';
 
 const routes: Routes = [
   {
@@ -51,7 +53,12 @@ const routes: Routes = [
   }, {
     path: 'fantasy/:matchId',
     component: FantasyComponent,
+    canActivate: [matchActiveGuard],
     data: { title: 'Fantasy' },
+  }, {
+    path: 'fantasy-leaderboard/:matchId',
+    component: FantasyLeaderboardComponent,
+    data: { title: 'Fantasy Leaderboard' },
   }
 ];
 

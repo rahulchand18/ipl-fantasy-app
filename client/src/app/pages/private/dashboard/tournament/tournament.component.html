@@ -1,91 +1,164 @@
 <div class="container p-3">
-    <h2 class="text-primary font-weight-bold text-center mb-4">🏏 Live Matches & Predictions</h2>
+  <h2 class="text-primary font-weight-bold text-center mb-4">
+    🏏 Live Matches & Predictions
+  </h2>
 
-    <!-- No Active Matches Alert -->
-    <div class="alert alert-danger text-center" role="alert" *ngIf="!loading && (!allSeries || !allSeries.length)">
-        ❌ No Active Matches Available
-    </div>
+  <!-- No Active Matches Alert -->
+  <div
+    class="alert alert-danger text-center"
+    role="alert"
+    *ngIf="!loading && (!allSeries || !allSeries.length)"
+  >
+    ❌ No Active Matches Available
+  </div>
 
-    <!-- Loading Spinner -->
-    <div class="d-flex justify-content-center my-4" *ngIf="loading">
-        <mat-spinner></mat-spinner>
-    </div>
+  <!-- Loading Spinner -->
+  <div class="d-flex justify-content-center my-4" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+  </div>
 
-    <!-- Show More / Less Button -->
-    <div class="text-center mb-3" *ngIf="history">
-        <button mat-flat-button color="primary"
-            (click)="getAllSeries(true, !viewFullList); viewFullList = !viewFullList">
-            🔄 Show {{ !viewFullList ? "More" : "Less" }}
+  <!-- Show More / Less Button -->
+  <div class="text-center mb-3" *ngIf="history">
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="getAllSeries(true, !viewFullList); viewFullList = !viewFullList"
+    >
+      🔄 Show {{ !viewFullList ? "More" : "Less" }}
+    </button>
+  </div>
+
+  <!-- Matches Container -->
+  <div
+    class="match-container d-flex flex-wrap justify-content-center"
+    *ngIf="!loading && allSeries?.length"
+  >
+    <div
+      class="card match-card shadow-lg p-3 m-2 cursor-pointer"
+      *ngFor="let match of allSeries"
+      [matMenuTriggerFor]="menu"
+    >
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="goToPrediction(match.id, match.active)">
+          Prediction
         </button>
-    </div>
+        <button mat-menu-item (click)="goToFantasy(match.id, match.active)">
+          Fantasy (beta)
+        </button>
+      </mat-menu>
 
-    <!-- Matches Container -->
-    <div class="match-container d-flex flex-wrap justify-content-center" *ngIf="!loading && allSeries?.length">
-        <div class="card match-card shadow-lg p-3 m-2 cursor-pointer" *ngFor="let match of allSeries"
-            (click)="goToPrediction(match.id, match.active)">
+      <!-- Match Status -->
+      <div
+        class="text-center p-2 rounded"
+        [ngClass]="{
+          'bg-danger text-white': !match.active && !match.history,
+          'bg-info text-white': match.active
+        }"
+      >
+        {{
+          match.active
+            ? "🔥 Match is Active!"
+            : "🔒 Match Prediction is Locked!"
+        }}
+      </div>
 
-            <!-- Match Status -->
-            <div class="text-center p-2 rounded"
-                [ngClass]="{'bg-danger text-white': !match.active && !match.history, 'bg-info text-white': match.active}">
-                {{ match.active ? "🔥 Match is Active!" : "🔒 Match Prediction is Locked!" }}
-            </div>
-
-            <!-- Match Details -->
-            <div class="match-details p-3">
-                <div class="team-info text-center">
-                    <div class="team d-flex align-items-center justify-content-between">
-                        <img class="team-img rounded-circle shadow-sm" [src]="match.t1img" alt="{{ match.t1 }}" />
-                        <strong class="text-uppercase">{{ match.t1 }}</strong>
-                        <b class="ml-auto text-success">{{ match.t1s }}</b>
-                    </div>
-                    <div class="team d-flex align-items-center justify-content-between mt-2">
-                        <img class="team-img rounded-circle shadow-sm" [src]="match.t2img" alt="{{ match.t2 }}" />
-                        <strong class="text-uppercase">{{ match.t2 }}</strong>
-                        <b class="ml-auto text-danger">{{ match.t2s }}</b>
-                    </div>
-                </div>
-
-                <!-- Match Date -->
-                <div class="match-date text-center mt-3 font-italic text-secondary">
-                    📅 {{ (match.date) | date: "dd MMMM, yyyy" }}
-                </div>
-            </div>
-
-            <!-- Match Status -->
-            <div class="match-status text-center mt-2 font-weight-bold text-primary">
-                {{ match.status }}
-            </div>
+      <!-- Match Details -->
+      <div class="match-details p-3">
+        <div class="team-info text-center">
+          <div class="team d-flex align-items-center justify-content-between">
+            <img
+              class="team-img rounded-circle shadow-sm"
+              [src]="match.t1img"
+              alt="{{ match.t1 }}"
+            />
+            <strong class="text-uppercase">{{ match.t1 }}</strong>
+            <b class="ml-auto text-success">{{ match.t1s }}</b>
+          </div>
+          <div
+            class="team d-flex align-items-center justify-content-between mt-2"
+          >
+            <img
+              class="team-img rounded-circle shadow-sm"
+              [src]="match.t2img"
+              alt="{{ match.t2 }}"
+            />
+            <strong class="text-uppercase">{{ match.t2 }}</strong>
+            <b class="ml-auto text-danger">{{ match.t2s }}</b>
+          </div>
         </div>
-    </div>
 
-    <!-- Action Buttons -->
-    <div class="btn-container d-flex flex-wrap justify-content-center mt-4">
-        <button mat-flat-button class="btn-custom m-1" color="primary" [disabled]="history"
-            (click)="getAllSeries(true, false); history = true">
-            📜 History
-        </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" (click)="getAllSeries(false); history = false">
-            🏏 Current Matches
-        </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="season-points-table"
-            (click)="scrollToOutlet()">
-            📊 Season Points Table
-        </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="match-results"
-            (click)="scrollToOutlet()">
-            🏆 Match Results
-        </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="match-summary"
-            (click)="scrollToOutlet()">
-            🎯 Correct Predictions
-        </button>
-        <button mat-flat-button class="btn-custom m-1" color="primary" routerLink="rules" (click)="scrollToOutlet()">
-            📜 Rules
-        </button>
+        <!-- Match Date -->
+        <div class="match-date text-center mt-3 font-italic text-secondary">
+          📅 {{ match.date | date : "dd MMMM, yyyy" }}
+        </div>
+      </div>
+
+      <!-- Match Status -->
+      <div class="match-status text-center mt-2 font-weight-bold text-primary">
+        {{ match.status }}
+      </div>
     </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="btn-container d-flex flex-wrap justify-content-center mt-4">
+    <button
+      mat-flat-button
+      class="btn-custom m-1"
+      color="primary"
+      [disabled]="history"
+      (click)="getAllSeries(true, false); history = true"
+    >
+      📜 History
+    </button>
+    <button
+      mat-flat-button
+      class="btn-custom m-1"
+      color="primary"
+      (click)="getAllSeries(false); history = false"
+    >
+      🏏 Current Matches
+    </button>
+    <button
+      mat-flat-button
+      class="btn-custom m-1"
+      color="primary"
+      routerLink="season-points-table"
+      (click)="scrollToOutlet()"
+    >
+      📊 Season Points Table
+    </button>
+    <button
+      mat-flat-button
+      class="btn-custom m-1"
+      color="primary"
+      routerLink="match-results"
+      (click)="scrollToOutlet()"
+    >
+      🏆 Match Results
+    </button>
+    <button
+      mat-flat-button
+      class="btn-custom m-1"
+      color="primary"
+      routerLink="match-summary"
+      (click)="scrollToOutlet()"
+    >
+      🎯 Correct Predictions
+    </button>
+    <button
+      mat-flat-button
+      class="btn-custom m-1"
+      color="primary"
+      routerLink="rules"
+      (click)="scrollToOutlet()"
+    >
+      📜 Rules
+    </button>
+  </div>
 </div>
 
 <!-- Router Outlet -->
 <div class="container mt-4" #scrollTarget>
-    <router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 </div>

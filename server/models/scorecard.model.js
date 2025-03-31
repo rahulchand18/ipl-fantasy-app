@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const playerSchema = {
+  id: {
+    type: String,
+  },
   name: {
     type: String,
   },
@@ -29,7 +32,16 @@ const playerSchema = {
   wickets: {
     type: Number,
   },
+  economyRate: {
+    type: Number,
+  },
+  runout: {
+    type: Number,
+  },
   catch: {
+    type: Number,
+  },
+  stumping: {
     type: Number,
   },
 };
