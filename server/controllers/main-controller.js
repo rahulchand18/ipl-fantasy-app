@@ -1076,6 +1076,7 @@ const importScoreCard = async () => {
         matchStarted: matchResponse.matchStarted,
         matchEnded: matchResponse.matchEnded,
       };
+      console.log(995, matchResponse);
       const players = [];
 
       for (const inning of matchResponse.scorecard) {
@@ -1329,6 +1330,8 @@ const importFromScorecard = async () => {
           },
         },
       ]);
+
+      console.log(111, summary);
 
       if (summary && summary.length) {
         await Match.updateOne(
