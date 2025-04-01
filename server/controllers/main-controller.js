@@ -40,7 +40,7 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("15 10,11,12,14,16,17,18,19 * * *", () => {
+cron.schedule("15,33 10,11,12,14,16,17,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
@@ -1049,6 +1049,7 @@ const importMatch = async () => {
 };
 
 function removeLastTwoWords(text) {
+  if (!text) return "";
   let words = text.split(" "); // Split the string into an array of words
   if (words.length > 2) {
     words.length -= 2; // Remove the last two words
