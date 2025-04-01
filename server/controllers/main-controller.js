@@ -1048,6 +1048,14 @@ const importMatch = async () => {
   }
 };
 
+function removeLastTwoWords(text) {
+  let words = text.split(" "); // Split the string into an array of words
+  if (words.length > 2) {
+    words.length -= 2; // Remove the last two words
+  }
+  return words.join(" "); // Join the remaining words back into a string
+}
+
 const importScoreCard = async () => {
   try {
     const activeMatches = await Match.find({
@@ -1060,22 +1068,38 @@ const importScoreCard = async () => {
       const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${randomAPIKey}&id=${match.matchId}`;
       const response = await axios.get(url);
       const matchResponse = response.data?.data;
+      const battingFirst = removeLastTwoWords(matchResponse?.score[0]?.inning);
+      const battingSecond = removeLastTwoWords(matchResponse?.score[1]?.inning);
       const matchData = {
         id: matchResponse.id,
         status: matchResponse.status,
         t1: matchResponse.teams[0],
         t2: matchResponse.teams[1],
-        t1s: `${matchResponse.score[0]?.r}/${matchResponse.score[0]?.w} (${
-          matchResponse.score[0]?.o ?? 0.0
-        })`,
-        t2s: `${matchResponse.score[1]?.r ?? 0}/${
-          matchResponse.score[1]?.w ?? 0
-        } (${matchResponse.score[1]?.o ?? 0.0})`,
+        t1s: "",
+        t2s: "",
         tossWinner: teamsObj[matchResponse.tossWinner],
         matchWinner: teamsObj[matchResponse.matchWinner],
         matchStarted: matchResponse.matchStarted,
         matchEnded: matchResponse.matchEnded,
       };
+      if (battingFirst === matchData.t1) {
+        matchData.t1s = `${matchResponse.score[0]?.r}/${
+          matchResponse.score[0]?.w
+        } (${matchResponse.score[0]?.o ?? 0.0})`;
+
+        matchData.t2s = `${matchResponse.score[1]?.r ?? 0}/${
+          matchResponse.score[1]?.w ?? 0
+        } (${matchResponse.score[1]?.o ?? 0.0})`;
+      }
+      if (battingSecond === matchData.t1) {
+        matchData.t2s = `${matchResponse.score[0]?.r}/${
+          matchResponse.score[0]?.w
+        } (${matchResponse.score[0]?.o ?? 0.0})`;
+
+        matchData.t1s = `${matchResponse.score[1]?.r ?? 0}/${
+          matchResponse.score[1]?.w ?? 0
+        } (${matchResponse.score[1]?.o ?? 0.0})`;
+      }
       console.log(995, matchResponse);
       const players = [];
 

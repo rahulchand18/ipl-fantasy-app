@@ -11,6 +11,7 @@ import { RulesComponent } from './rules/rules.component';
 import { FantasyComponent } from './fantasy/fantasy.component';
 import { matchActiveGuard } from 'src/app/core/guards/match-active.guard';
 import { FantasyLeaderboardComponent } from './fantasy-leaderboard/fantasy-leaderboard.component';
+import { matchDeactivateGuard } from 'src/app/core/guards/match-deactivate.guard';
 
 const routes: Routes = [
   {
@@ -58,6 +59,7 @@ const routes: Routes = [
   }, {
     path: 'fantasy-leaderboard/:matchId',
     component: FantasyLeaderboardComponent,
+    canActivate: [matchDeactivateGuard],
     data: { title: 'Fantasy Leaderboard' },
   }
 ];
