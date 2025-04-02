@@ -30,7 +30,7 @@ const API_KEY1 = "b1730717-b60e-4809-a631-37143da63010";
 const API_KEY2 = "203fdcb6-99e1-41e7-95da-62f38dedb565";
 const API_KEY3 = "ea6a4521-2526-4eb1-ac03-b01f3bede206";
 const API_KEYS = [API_KEY1, API_KEY2, API_KEY3];
-cron.schedule("20 13 * * *", () => {
+cron.schedule("58 13 * * *", () => {
   console.log("Match deactivate started.");
   deactivateMatch();
 });
