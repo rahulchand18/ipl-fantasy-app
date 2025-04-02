@@ -36,7 +36,7 @@
     <div
       class="card match-card shadow-lg p-3 m-2 cursor-pointer"
       *ngFor="let match of allSeries"
-      [matMenuTriggerFor]="menu"
+      (click)="goToFantasy(match.id, match.active)"
     >
       <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="goToPrediction(match.id, match.active)">
@@ -119,7 +119,7 @@
     >
       🏏 Current Matches
     </button>
-    <button
+    <!-- <button
       mat-flat-button
       class="btn-custom m-1"
       color="primary"
@@ -145,7 +145,7 @@
       (click)="scrollToOutlet()"
     >
       🎯 Correct Predictions
-    </button>
+    </button> -->
     <button
       mat-flat-button
       class="btn-custom m-1"

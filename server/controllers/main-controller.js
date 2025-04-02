@@ -363,9 +363,93 @@ const updateCompleteStatus = async (req, res) => {
 };
 
 async function calculateBalance(matchId) {
-  const matchWinner = await PointsTable.find({ matchId }).sort({
-    total: -1,
-    createdAt: 1,
+  // const matchWinner = await PointsTable.find({ matchId }).sort({
+  //   total: -1,
+  //   createdAt: 1,
+  // });
+  const players = await FantasyTeamModel.aggregate([
+    {
+      $match: {
+        matchId,
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "email",
+        foreignField: "email",
+        as: "user",
+      },
+    },
+    {
+      $unwind: "$user",
+    },
+    {
+      $unwind: "$players",
+    },
+    {
+      $group: {
+        _id: "$email",
+        user: { $first: "$user" },
+        date: { $first: "$createdAt" },
+        players: { $push: "$players" }, // Re-group players into an array
+        totalPoints: {
+          $sum: {
+            $cond: [
+              { $eq: ["$players.isCaptain", true] },
+              { $multiply: ["$players.points", 2] }, // Double captain's points
+              {
+                $cond: [
+                  { $eq: ["$players.isViceCaptain", true] },
+                  { $multiply: ["$players.points", 1.5] }, // 1.5x vice-captain's points
+                  "$players.points", // Normal points for other players
+                ],
+              },
+            ],
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        captain: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$players",
+                as: "player",
+                cond: { $eq: ["$$player.isCaptain", true] },
+              },
+            },
+            0,
+          ],
+        },
+        viceCaptain: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$players",
+                as: "player",
+                cond: { $eq: ["$$player.isViceCaptain", true] },
+              },
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $sort: {
+        totalPoints: -1,
+        date: 1, // Prefer the first created team if points are the same
+      },
+    },
+  ]);
+  const matchWinner = [];
+  players.forEach((winner) => {
+    matchWinner.push({
+      email: winner._id,
+    });
   });
   const totalBalance = matchWinner.length * 10;
   const { first, second, third } = balanceBreakdown(totalBalance);
@@ -394,6 +478,7 @@ async function calculateBalance(matchId) {
 
 function balanceBreakdown(total) {
   const breakdowns = {
+    30: { first: 20, second: -10, third: -10 },
     40: { first: 30, second: -10, third: -10 },
     50: { first: 30, second: 0, third: -10 },
     60: { first: 40, second: 0, third: -10 },
@@ -765,6 +850,7 @@ const getBalanceById = async (req, res) => {
 };
 
 async function updateBalanceByUser(email, balance, action, remarks) {
+  console.log(email, balance, action, remarks);
   if (balance) {
     balance = Math.abs(balance);
     let updateQuery = {};
@@ -1489,6 +1575,46 @@ const getAllPredictionsByMatch = async (req, res) => {
         $unwind: "$user",
       },
       {
+        $lookup: {
+          from: "statements", // Assuming this is the collection with balance data
+          let: { email: "$user.email", matchId: "$matchId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$email", "$$email"] },
+                    { $eq: ["$remarks", "$$matchId"] },
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                balance: 1, // Fetch only the balance field
+                action: 1, // Fetch only the balance field
+                _id: 0,
+              },
+            },
+          ],
+          as: "balanceData",
+        },
+      },
+      {
+        $addFields: {
+          balance: {
+            $ifNull: [{ $arrayElemAt: ["$balanceData.balance", 0] }, 0],
+          },
+        },
+      },
+      {
+        $addFields: {
+          action: {
+            $ifNull: [{ $arrayElemAt: ["$balanceData.action", 0] }, ""],
+          },
+        },
+      },
+      {
         $unwind: "$players",
       },
       {
@@ -1496,6 +1622,8 @@ const getAllPredictionsByMatch = async (req, res) => {
           _id: "$email",
           user: { $first: "$user" },
           date: { $first: "$createdAt" },
+          balance: { $first: "$balance" },
+          action: { $first: "$action" },
           players: { $push: "$players" }, // Re-group players into an array
           totalPoints: {
             $sum: {
@@ -1549,6 +1677,8 @@ const getAllPredictionsByMatch = async (req, res) => {
         },
       },
     ]);
+
+    console.log(predictions);
 
     if (predictions && predictions.length) {
       return res.status(200).send({ data: predictions });
@@ -1670,6 +1800,8 @@ const getPlayersPoints = (players, match) => {
         points -= 2;
       }
     }
+
+    if (player.maidens) points += player.maidens * 8; // 8 points per maiden
 
     // Fielding Points
     if (player.catch) points += player.catch * 8; // 8 points per catch

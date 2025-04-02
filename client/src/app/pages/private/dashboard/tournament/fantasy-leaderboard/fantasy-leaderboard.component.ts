@@ -36,6 +36,10 @@ export class FantasyLeaderboardComponent {
     }, 200);
   }
 
+  goBack() {
+    window.history.back();
+  }
+
 
 
   getAllPredictionsByMatch() {
