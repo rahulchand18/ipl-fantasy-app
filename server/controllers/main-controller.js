@@ -44,7 +44,7 @@ cron.schedule("15,45 10,11,12,14,15,16,17,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
-cron.schedule("20,40 10-19 * * *", () => {
+cron.schedule("*/10 10-19 * * *", () => {
   console.log("Match Import Start");
   importFromScorecard();
 });
