@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const connect = () => {
   return mongoose
-    .connect("mongodb://amss-db:27017/Registration", {
+    .connect("mongodb://localhost:27019/Registration", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })

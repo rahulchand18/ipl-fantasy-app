@@ -1193,8 +1193,8 @@ const importScoreCard = async () => {
       for (const inning of matchResponse.scorecard) {
         for (const player of inning.batting) {
           const playerData = {
-            name: player.batsman.name,
-            id: player.batsman.id,
+            name: player.batsman?.name,
+            id: player.batsman?.id,
             runs: player.r,
             balls: player.b,
             sixes: player["6s"],
@@ -1205,8 +1205,8 @@ const importScoreCard = async () => {
         }
         for (const player of inning.bowling) {
           const playerData = {
-            name: player.bowler.name,
-            id: player.bowler.id,
+            name: player.bowler?.name,
+            id: player.bowler?.id,
             overs: player.o,
             maidens: player.m,
             wickets: player.w,
@@ -1216,8 +1216,8 @@ const importScoreCard = async () => {
         }
         for (const player of inning.catching) {
           const playerData = {
-            name: player.catcher.name,
-            id: player.catcher.id,
+            name: player.catcher?.name,
+            id: player.catcher?.id,
             catch: player.catch,
             runout: player.runout,
             stumping: player.stumped,
