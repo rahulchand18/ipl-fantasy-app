@@ -919,43 +919,125 @@ const getAllUsers = async (req, res) => {
 
 const getSeasonPointsTable = async (req, res) => {
   try {
-    const table = await PointsTable.aggregate([
+    // const table = await PointsTable.aggregate([
+    //   {
+    //     $group: {
+    //       _id: "$email",
+    //       total: { $sum: "$total" },
+    //       matches: { $sum: 1 },
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "users",
+    //       localField: "_id",
+    //       foreignField: "email",
+    //       as: "user",
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$user",
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       total: 1,
+    //       firstName: "$user.firstName",
+    //       lastName: "$user.lastName",
+    //       img: "$user.img",
+    //       matches: 1,
+    //     },
+    //   },
+    //   {
+    //     $sort: {
+    //       total: -1,
+    //     },
+    //   },
+    // ]);
+    const result = await FantasyTeamModel.aggregate([
+      // Flatten each player's points per document
+      { $unwind: "$players" },
+
+      // Calculate adjusted points
+      {
+        $addFields: {
+          adjustedPoints: {
+            $cond: [
+              "$players.isCaptain",
+              { $multiply: ["$players.points", 2] },
+              {
+                $cond: [
+                  "$players.isViceCaptain",
+                  { $multiply: ["$players.points", 1.5] },
+                  "$players.points",
+                ],
+              },
+            ],
+          },
+        },
+      },
+
+      // Group by user (email) and sum total points
       {
         $group: {
           _id: "$email",
-          total: { $sum: "$total" },
-          matches: { $sum: 1 },
+          total: { $sum: "$adjustedPoints" },
+          matches: { $addToSet: "$matchId" }, // for unique match count
         },
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "_id",
-          foreignField: "email",
-          as: "user",
-        },
-      },
-      {
-        $unwind: "$user",
-      },
+
+      // Project match count length
       {
         $project: {
-          _id: 1,
+          email: "$_id",
+          _id: 0,
           total: 1,
-          firstName: "$user.firstName",
-          lastName: "$user.lastName",
-          img: "$user.img",
-          matches: 1,
+          matches: { $size: "$matches" },
         },
       },
+
+      // Join with users collection
+      {
+        $lookup: {
+          from: "users", // your users collection
+          localField: "email",
+          foreignField: "email",
+          as: "userInfo",
+        },
+      },
+
+      // Flatten userInfo array
+      {
+        $unwind: {
+          path: "$userInfo",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // Final projection
+      {
+        $project: {
+          email: 1,
+          total: 1,
+          matches: 1,
+          firstName: "$userInfo.firstName",
+          lastName: "$userInfo.lastName",
+          img: "$userInfo.img",
+        },
+      },
+
+      // Sort by total points
       {
         $sort: {
           total: -1,
         },
       },
     ]);
-    return res.status(200).send({ data: table });
+
+    // res.json(result);
+    return res.status(200).send({ data: result });
   } catch (error) {
+    console.log(error);
     return res.status(500).send(error);
   }
 };
