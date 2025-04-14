@@ -29,7 +29,19 @@ const teamsObj = {
 const API_KEY1 = "b1730717-b60e-4809-a631-37143da63010";
 const API_KEY2 = "203fdcb6-99e1-41e7-95da-62f38dedb565";
 const API_KEY3 = "ea6a4521-2526-4eb1-ac03-b01f3bede206";
-const API_KEYS = [API_KEY1, API_KEY2, API_KEY3];
+const API_KEY4 = "e133894a-7f47-4c44-ac82-40688843d2ad";
+const API_KEY5 = "12453844-5731-4ad0-a799-b1ca4c4ded9e";
+const API_KEY6 = "1ef06210-bd7b-4026-a3fc-63e6d1112685";
+const API_KEY7 = "d3e8d055-e241-47d2-bf40-e77b05a6d9af";
+const API_KEYS = [
+  API_KEY1,
+  API_KEY2,
+  API_KEY3,
+  API_KEY4,
+  API_KEY5,
+  API_KEY6,
+  API_KEY7,
+];
 cron.schedule("58 13 * * *", () => {
   console.log("Match deactivate started.");
   deactivateMatch();
@@ -1233,12 +1245,15 @@ const importScoreCard = async () => {
       matchStarted: true,
     });
     for (const match of activeMatches) {
-      const randomAPIKey = API_KEYS[Math.floor(Math.random() * 3)];
+      const randomAPIKey = API_KEYS[Math.floor(Math.random() * 7)];
       console.log(match.id);
       const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${randomAPIKey}&id=${match.matchId}`;
       const response = await axios.get(url);
       const matchResponse = response.data?.data;
-      console.log(1240, matchResponse)
+      if (!matchResponse) {
+        console.log("No data found", randomAPIKey, response);
+        break;
+      }
       const battingFirst = removeLastTwoWords(matchResponse?.score[0]?.inning);
       const battingSecond = removeLastTwoWords(matchResponse?.score[1]?.inning);
       const matchData = {
@@ -1298,14 +1313,31 @@ const importScoreCard = async () => {
           players.push(playerData);
         }
         for (const player of inning.catching) {
-          const playerData = {
-            name: player.catcher?.name,
-            id: player.catcher?.id,
-            catch: player.catch,
-            runout: player.runout,
-            stumping: player.stumped,
-          };
-          players.push(playerData);
+          const catcher = player.catcher;
+          if (!catcher || !catcher.id) continue;
+
+          let existing = players.find((p) => p.id === catcher.id);
+          if (!existing) {
+            existing = {
+              name: catcher.name,
+              id: catcher.id,
+              catch: 0,
+              runout: 0,
+              stumping: 0,
+            };
+          }
+
+          if (player.catch) {
+            existing.catch = (existing.catch ?? 0) + player.catch;
+          }
+          if (player.runout) {
+            existing.runout = (existing.runout ?? 0) + player.runout;
+          }
+          if (player.stumped) {
+            existing.stumping = (existing.stumping ?? 0) + player.stumped;
+          }
+
+          players.push(existing);
         }
       }
 
@@ -1315,8 +1347,7 @@ const importScoreCard = async () => {
 
       const existing = await Scorecard.findOne({ id: matchData.id });
       if (!existing) {
-        const a = await Scorecard.create(matchData);
-        console.log(a);
+        await Scorecard.create(matchData);
       } else {
         await Scorecard.updateOne({ id: existing.id }, { $set: matchData });
       }
