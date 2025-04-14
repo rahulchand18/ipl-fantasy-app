@@ -49,7 +49,7 @@ cron.schedule("*/10 10-19 * * *", () => {
   importFromScorecard();
 });
 
-cron.schedule("*/10 14-23 * * *", () => {
+cron.schedule("*/10 10-23 * * *", () => {
   console.log("Fantasy Points Update Start");
   updateFantasyPoints();
 });
@@ -73,7 +73,8 @@ const activateMatch = async () => {
     const matches = await Match.find({ history: false });
     for (const match of matches) {
       const day = new Date(match.date).getDate();
-      if (day === todayDate.getDate()) {
+      const month = new Date(match.date).getMonth();
+      if (day === todayDate.getDate() && month === todayDate.getMonth()) {
         await Match.updateOne({ _id: match._id }, { $set: { active: true } });
         console.log(`Match: ${match.id} Activated`);
       }
@@ -1237,6 +1238,7 @@ const importScoreCard = async () => {
       const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${randomAPIKey}&id=${match.matchId}`;
       const response = await axios.get(url);
       const matchResponse = response.data?.data;
+      console.log(1240, matchResponse)
       const battingFirst = removeLastTwoWords(matchResponse?.score[0]?.inning);
       const battingSecond = removeLastTwoWords(matchResponse?.score[1]?.inning);
       const matchData = {
@@ -1269,7 +1271,6 @@ const importScoreCard = async () => {
           matchResponse.score[1]?.w ?? 0
         } (${matchResponse.score[1]?.o ?? 0.0})`;
       }
-      console.log(995, matchResponse);
       const players = [];
 
       for (const inning of matchResponse.scorecard) {

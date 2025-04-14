@@ -45,7 +45,12 @@
       <app-preview-team [captain]="captain" [viceCaptain]="viceCaptain"
         [selectedPlayers]="selectedPlayers"></app-preview-team>
 
-      <button mat-flat-button color="primary" class="w-50 m-auto mt-4" (click)="saveTeam()">Save</button>
+      <button mat-flat-button color="primary" class="w-50 m-auto mt-4" *ngIf="!loading"
+        (click)="saveTeam()">Save</button>
+      <button mat-flat-button color="primary" class="w-50 m-auto mt-4" *ngIf="loading">
+        <mat-spinner></mat-spinner>
+
+      </button>
     </div>
   </div>
 </div>
