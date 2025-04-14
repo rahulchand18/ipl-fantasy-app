@@ -47,10 +47,12 @@
 
       <button mat-flat-button color="primary" class="w-50 m-auto mt-4" *ngIf="!loading"
         (click)="saveTeam()">Save</button>
-      <button mat-flat-button color="primary" class="w-50 m-auto mt-4" *ngIf="loading">
-        <mat-spinner></mat-spinner>
 
+      <button mat-flat-button color="primary" class="w-50 m-auto mt-4 d-flex justify-content-center align-items-center"
+        disabled *ngIf="loading">
+        <mat-spinner [diameter]="20" strokeWidth="3"></mat-spinner>
       </button>
+
     </div>
   </div>
 </div>
