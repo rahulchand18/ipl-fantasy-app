@@ -3,15 +3,17 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-preview-team',
   templateUrl: './preview-team.component.html',
-  styleUrl: './preview-team.component.scss'
+  styleUrl: './preview-team.component.scss',
 })
 export class PreviewTeamComponent {
-
   @Input() selectedPlayers: any;
   @Input() captain!: string;
   @Input() viceCaptain!: string;
   @Input() showPoints: boolean = false;
 
+  ngOnInit() {
+    console.log(this.selectedPlayers, this.captain, this.viceCaptain);
+  }
 
   points(player: any): number {
     if (player.isCaptain) {
@@ -22,5 +24,4 @@ export class PreviewTeamComponent {
     }
     return player.points;
   }
-
 }

@@ -7,14 +7,13 @@ import { HttpService } from './http.service';
   providedIn: 'root',
 })
 export class MatchService {
-  constructor(private http: HttpService) { }
+  constructor(private http: HttpService) {}
 
   getAllSeries(query?: {
     history?: boolean;
     fullList?: boolean;
     viewAsAdmin?: boolean;
   }): Observable<any> {
-    console.log(query)
     return this.http.get('/getAllSeries', query);
   }
 
@@ -92,6 +91,9 @@ export class MatchService {
   }
   getAllPredictionsByMatch(matchId: string): Observable<any> {
     return this.http.get(`/getAllPredictionsByMatch/`, { matchId });
+  }
+  getDreamTeam(matchId: string): Observable<any> {
+    return this.http.get(`/getDreamTeam/${matchId}`);
   }
   calculate(matchId: string): Observable<any> {
     return this.http.put(`/calculate/${matchId}`);

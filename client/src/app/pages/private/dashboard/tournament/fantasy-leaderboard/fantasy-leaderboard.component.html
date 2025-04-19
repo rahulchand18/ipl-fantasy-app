@@ -72,7 +72,7 @@
             <strong>{{ item.totalPoints }}</strong> pts
           </div>
           <span
-            *ngIf="item.balance"
+            *ngIf="match.history"
             [ngClass]="{
               'text-danger font-weight-bold': item.action === 'deducted',
               'text-success font-weight-bold': item.action === 'added'
@@ -83,11 +83,19 @@
           </span>
         </div>
       </div>
+      <button
+        mat-flat-button
+        color="primary"
+        class="mt-3"
+        (click)="getDreamTeam()"
+      >
+        Show Dream Team
+      </button>
     </div>
 
     <!-- Preview Section -->
     <div class="preview-section" *ngIf="selectedTeam" #previewSection>
-      <h2 class="text-center">📋 Preview Team</h2>
+      <h2 class="text-center">📋 {{ bestTeam ? "Dream" : "Preview" }} Team</h2>
       <app-preview-team
         [captain]="selectedTeam.captain.id"
         [viceCaptain]="selectedTeam.viceCaptain.id"

@@ -1936,6 +1936,124 @@ const getPlayersPoints = (players, match) => {
   return playerWithPoints;
 };
 
+const getDreamTeam = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+
+    const match = await Match.findOne({
+      id: matchId,
+    });
+    const scoreCard = await Scorecard.findOne({ id: match.matchId });
+
+    const playersWithPoints = getPlayersPoints(scoreCard.players, match);
+    const sortedPlayers = playersWithPoints.sort((a, b) => b.points - a.points);
+    for (const player of sortedPlayers) {
+      const playerDetails = await Teams.aggregate([
+        {
+          $unwind: "$players",
+        },
+        {
+          $match: {
+            "players.id": player.id,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            role: "$players.role",
+            img: "$players.playerImg",
+            team: "$shortname",
+          },
+        },
+      ]);
+      player.role = playerDetails[0].role;
+      player.img = playerDetails[0].img;
+      player.team = playerDetails[0].team;
+    }
+
+    const bestTeam = selectDreamTeam(sortedPlayers);
+    console.log(bestTeam);
+    return res.status(200).send({ data: bestTeam });
+  } catch (error) {
+    console.log(error);
+    return res.send(error.message);
+  }
+};
+
+function selectDreamTeam(players) {
+  // Sort players by points in descending order
+  const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+
+  // Initialize team and counters
+  const team = [];
+  const teamCounts = {};
+  const roleCounts = {
+    "WK-Batsman": 0,
+    Batsman: 0,
+    Allrounder: 0, // Combined count for Batting and Bowling Allrounders
+    Bowler: 0,
+  };
+
+  for (const player of sortedPlayers) {
+    // Check team limit (max 6 from one team)
+    if ((teamCounts[player.team] || 0) >= 6) {
+      continue;
+    }
+
+    const role = player.role;
+    player.role = player.role.includes("Allrounder")
+      ? "Allrounder"
+      : player.role;
+    let roleForCounting = role;
+
+    // Treat both allrounder types as "Allrounder" for counting
+    if (role === "Batting Allrounder" || role === "Bowling Allrounder") {
+      roleForCounting = "Allrounder";
+    }
+
+    // Check role limits
+    if (roleForCounting === "WK-Batsman" && roleCounts[roleForCounting] >= 4)
+      continue;
+    if (roleForCounting === "Batsman" && roleCounts[roleForCounting] >= 5)
+      continue;
+    if (roleForCounting === "Allrounder" && roleCounts[roleForCounting] >= 5)
+      continue;
+    if (roleForCounting === "Bowler" && roleCounts[roleForCounting] >= 5)
+      continue;
+
+    // Add player to team
+    team.push(player);
+    teamCounts[player.team] = (teamCounts[player.team] || 0) + 1;
+    roleCounts[roleForCounting]++;
+
+    // Stop when team has 11 players
+    if (team.length === 11) break;
+  }
+
+  // Verify minimum requirements are met
+  if (
+    roleCounts["WK-Batsman"] < 1 ||
+    roleCounts["Batsman"] < 2 ||
+    roleCounts["Allrounder"] < 1 ||
+    roleCounts["Bowler"] < 2
+  ) {
+    console.warn("Minimum role requirements not fully met");
+  }
+
+  // Sort team by points again to assign captain and vice-captain
+  team.sort((a, b) => b.points - a.points);
+
+  // Assign captain and vice-captain
+  if (team.length > 0) team[0].isCaptain = true;
+  if (team.length > 1) team[1].isViceCaptain = true;
+
+  return team;
+}
+
+// Usage
+// const bestTeam = selectBestTeam(playersArray);
+// console.log(bestTeam);
+
 const mainController = {
   getAllSeries,
   createMatch,
@@ -1970,6 +2088,7 @@ const mainController = {
   getOnePrediction,
   getAllPredictionsByMatch,
   updateFantasyPoints,
+  getDreamTeam,
 };
 
 module.exports = mainController;

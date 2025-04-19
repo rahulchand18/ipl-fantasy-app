@@ -128,6 +128,7 @@ router.get(
   "/getAllPredictionsByMatch",
   mainController.getAllPredictionsByMatch
 );
+router.get("/getDreamTeam/:matchId", mainController.getDreamTeam);
 router.put("/updatePrediction", mainController.updatePrediction);
 router.put("/calculate/:matchId", mainController.calculatePoints);
 router.get("/getPointsTable/:matchId", mainController.getPointsTable);
