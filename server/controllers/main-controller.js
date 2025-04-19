@@ -52,7 +52,7 @@ cron.schedule("15 02 * * *", () => {
   activateMatch();
 });
 
-cron.schedule("15,45 10,11,12,14,15,16,17,18,19 * * *", () => {
+cron.schedule("9,19,29,39,49,59 10,11,12,14,15,16,17,18,19 * * *", () => {
   console.log("Match Import Start");
   importScoreCard();
 });
@@ -1905,7 +1905,11 @@ const getPlayersPoints = (players, match) => {
     }
 
     // Economy Rate Points
-    if (player.overs && player.economyRate !== undefined) {
+    if (
+      player.overs &&
+      players.overs >= 2 &&
+      player.economyRate !== undefined
+    ) {
       if (player.economyRate <= 6) {
         points += 4;
       } else if (player.economyRate <= 8.5) {
