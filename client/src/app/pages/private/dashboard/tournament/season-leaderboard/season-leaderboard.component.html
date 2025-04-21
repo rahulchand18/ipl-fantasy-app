@@ -6,9 +6,8 @@
       <thead>
         <tr>
           <th>User</th>
-          <th *ngFor="let rank of rankColumns">
-            {{ rank }}
-          </th>
+          <th *ngFor="let rank of rankColumns">{{ rank }}</th>
+          <th>Total Matches</th>
         </tr>
       </thead>
       <tbody>
@@ -19,7 +18,7 @@
               [src]="
                 user.image
                   ? authService.getProfileUrl(user.image)
-                  : 'assets/images/default.png'
+                  : '/assets/images/image.png'
               "
               alt="User"
             />
@@ -27,18 +26,20 @@
               <div class="name">{{ user.name }}</div>
             </div>
           </td>
+
           <td
             *ngFor="let rank of rankColumns"
             [ngClass]="{
               rank: true,
               gold: rank === '1st',
               silver: rank === '2nd',
-              bronze: rank === '3rd',
-              others: ['1st', '2nd', '3rd'].indexOf(rank) === -1
+              bronze: rank === '3rd'
             }"
           >
             {{ user.ranks[rank] || 0 }}
           </td>
+
+          <td>{{ user.totalMatches }}</td>
         </tr>
       </tbody>
     </table>

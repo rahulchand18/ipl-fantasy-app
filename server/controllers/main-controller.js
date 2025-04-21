@@ -2143,74 +2143,113 @@ function selectDreamTeam(players) {
 const getLeaderboardMatrix = async (req, res) => {
   try {
     const teams = await FantasyTeamModel.find({});
-    const matchMap = {};
+    const userMap = new Map();
 
-    // Group by matchId
-    teams.forEach((team) => {
-      const matchId = team.matchId;
-      if (!matchMap[matchId]) matchMap[matchId] = [];
-      matchMap[matchId].push(team);
-    });
+    for (const team of teams) {
+      const email = team.email;
 
-    const rawRankMatrix = {}; // email => { 1st: x, 2nd: y }
+      // Calculate total points with captain (2x) and vice-captain (1.5x)
+      const totalPoints = team.players.reduce((sum, p) => {
+        const multiplier = p.isCaptain ? 2 : p.isViceCaptain ? 1.5 : 1;
+        return sum + p.points * multiplier;
+      }, 0);
 
-    for (const matchId in matchMap) {
-      const teamList = matchMap[matchId];
+      if (!userMap.has(email)) {
+        userMap.set(email, []);
+      }
 
-      const userScores = teamList.map((team) => {
-        let total = 0;
-        team.players.forEach((player) => {
-          let multiplier = 1;
-          if (player.isCaptain) multiplier = 2;
-          else if (player.isViceCaptain) multiplier = 1.5;
-          total += player.points * multiplier;
-        });
-
-        return {
-          email: team.email,
-          totalPoints: total,
-        };
-      });
-
-      userScores.sort((a, b) => b.totalPoints - a.totalPoints);
-
-      userScores.forEach((user, index) => {
-        let rankLabel = `${index + 1}th`;
-        if (index === 0) rankLabel = "1st";
-        else if (index === 1) rankLabel = "2nd";
-        else if (index === 2) rankLabel = "3rd";
-
-        if (!rawRankMatrix[user.email]) rawRankMatrix[user.email] = {};
-        if (!rawRankMatrix[user.email][rankLabel])
-          rawRankMatrix[user.email][rankLabel] = 0;
-
-        rawRankMatrix[user.email][rankLabel]++;
+      userMap.get(email).push({
+        matchId: team.matchId,
+        points: totalPoints,
       });
     }
 
-    // Now enrich with user info from `users` collection
-    const emails = Object.keys(rawRankMatrix);
-    const users = await User.find({ email: { $in: emails } });
+    // Get list of all matchIds
+    const allMatchIds = [...new Set(teams.map((t) => t.matchId))];
 
-    const enrichedMatrix = users.map((user) => {
-      return {
-        email: user.email,
-        name: `${user.firstName} ${user.lastName}`,
-        image: user.img,
-        ranks: rawRankMatrix[user.email] || {},
+    // Map user email to their ranks per match
+    const userStats = [];
+
+    for (const [email, matches] of userMap.entries()) {
+      const rankPerMatch = {};
+
+      // For each match, get sorted users
+      for (const matchId of allMatchIds) {
+        const playersInMatch = [];
+
+        // Loop through all users to get who played in this match
+        for (const [userEmail, userMatches] of userMap.entries()) {
+          const match = userMatches.find((m) => m.matchId === matchId);
+          if (match) {
+            playersInMatch.push({ email: userEmail, points: match.points });
+          }
+        }
+
+        playersInMatch.sort((a, b) => b.points - a.points);
+
+        playersInMatch.forEach((p, index) => {
+          if (!rankPerMatch[p.email]) rankPerMatch[p.email] = [];
+          rankPerMatch[p.email].push(index + 1); // Position
+        });
+      }
+
+      const ranks = {
+        "1st": 0,
+        "2nd": 0,
+        "3rd": 0,
+        "4th": 0,
+        "5th": 0,
+        last: 0,
       };
-    });
 
-    enrichedMatrix.sort((a, b) => {
-      const aFirsts = a.ranks["1st"] || 0;
-      const bFirsts = b.ranks["1st"] || 0;
-      return bFirsts - aFirsts; // descending order
-    });
+      const allRanks = rankPerMatch[email] || [];
 
-    res.send({ data: enrichedMatrix });
+      allRanks.forEach((rank, _, arr) => {
+        if (rank === 1) ranks["1st"]++;
+        else if (rank === 2) ranks["2nd"]++;
+        else if (rank === 3) ranks["3rd"]++;
+        else if (rank === 4) ranks["4th"]++;
+        else if (rank === 5) ranks["5th"]++;
+        else if (rank === Math.max(...arr)) ranks["last"]++;
+      });
+
+      const totalMatches = allRanks.length;
+
+      const positionWeights = {
+        "1st": 1,
+        "2nd": 2,
+        "3rd": 3,
+        "4th": 4,
+        "5th": 5,
+        last: 20, // assume 20th for last
+      };
+
+      const weightedSum = Object.entries(ranks).reduce((sum, [rank, count]) => {
+        return sum + (positionWeights[rank] || 0) * count;
+      }, 0);
+
+      const averagePosition = totalMatches
+        ? +(weightedSum / totalMatches).toFixed(2)
+        : 0;
+
+      const userInfo = await User.findOne({ email });
+
+      userStats.push({
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
+        image: userInfo?.img || "",
+        ranks,
+        totalMatches,
+        averagePosition,
+      });
+    }
+
+    // Sort by 1st rank desc
+    userStats.sort((a, b) => b.ranks["1st"] - a.ranks["1st"]);
+
+    res.send({ data: userStats });
   } catch (err) {
-    console.error("Error generating leaderboard matrix:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error generating leaderboard:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 

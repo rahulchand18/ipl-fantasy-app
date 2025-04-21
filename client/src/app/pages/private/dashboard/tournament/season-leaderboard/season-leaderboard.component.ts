@@ -18,13 +18,7 @@ export class SeasonLeaderboardComponent {
 
   ngOnInit() {
     this.getLeaderboard();
-    this.rankColumns = Array.from({ length: 20 }, (_, i) => {
-      const n = i + 1;
-      if (n === 1) return '1st';
-      if (n === 2) return '2nd';
-      if (n === 3) return '3rd';
-      return `${n}th`;
-    });
+    this.rankColumns = ['1st', '2nd', '3rd', '4th', '5th', 'last'];
   }
 
   getLeaderboard() {
