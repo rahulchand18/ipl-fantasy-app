@@ -125,4 +125,7 @@ export class MatchService {
   getNotifications(email: string): Observable<any> {
     return this.http.get(`/getNotifications/${email}`);
   }
+  getLeaderBoardMatrix(): Observable<any> {
+    return this.http.get(`/leaderboard-matrix`);
+  }
 }

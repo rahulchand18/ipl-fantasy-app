@@ -1,0 +1,84 @@
+.leaderboard-container {
+  padding: 1rem;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-details .name {
+  font-weight: 600;
+}
+
+/* Rank Colors */
+.rank.gold {
+  background-color: #ffd7002f;
+  font-weight: bold;
+}
+
+.rank.silver {
+  background-color: #c0c0c02f;
+  font-weight: bold;
+}
+
+.rank.bronze {
+  background-color: #cd7f322f;
+  font-weight: bold;
+}
+
+.rank.others {
+  background-color: #f9f9f9;
+}
+
+/* Optional: better experience on very small screens */
+@media (max-width: 600px) {
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .profile-img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .user-details .name {
+    font-size: 0.9rem;
+  }
+}

@@ -12,6 +12,7 @@ import { FantasyComponent } from './fantasy/fantasy.component';
 import { matchActiveGuard } from 'src/app/core/guards/match-active.guard';
 import { FantasyLeaderboardComponent } from './fantasy-leaderboard/fantasy-leaderboard.component';
 import { matchDeactivateGuard } from 'src/app/core/guards/match-deactivate.guard';
+import { SeasonLeaderboardComponent } from './season-leaderboard/season-leaderboard.component';
 
 const routes: Routes = [
   {
@@ -51,21 +52,28 @@ const routes: Routes = [
     component: TournamentConfigurationComponent,
     data: { title: 'Tournament' },
     title: 'Dashboard',
-  }, {
+  },
+  {
     path: 'fantasy/:matchId',
     component: FantasyComponent,
     canActivate: [matchActiveGuard],
     data: { title: 'Fantasy' },
-  }, {
+  },
+  {
     path: 'fantasy-leaderboard/:matchId',
     component: FantasyLeaderboardComponent,
     canActivate: [matchDeactivateGuard],
     data: { title: 'Fantasy Leaderboard' },
-  }
+  },
+  {
+    path: 'leaderboard-matrix',
+    component: SeasonLeaderboardComponent,
+    data: { title: 'Season Matrix' },
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class TournamentRoutingModule { }
+export class TournamentRoutingModule {}

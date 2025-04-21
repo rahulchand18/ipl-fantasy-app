@@ -141,6 +141,8 @@ router.get("/getMatchByMatchId/:matchId", mainController.getMatchByMatchId);
 router.get("/getSummary", mainController.getSummary);
 router.get("/getNotifications/:email", mainController.getNotifications);
 
+router.get("/leaderboard-matrix", mainController.getLeaderboardMatrix);
+
 router.post(
   "/uploadPhoto/:email",
   uploadOptions.single("image"),

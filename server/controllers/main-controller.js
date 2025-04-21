@@ -2140,6 +2140,80 @@ function selectDreamTeam(players) {
 // const bestTeam = selectBestTeam(playersArray);
 // console.log(bestTeam);
 
+const getLeaderboardMatrix = async (req, res) => {
+  try {
+    const teams = await FantasyTeamModel.find({});
+    const matchMap = {};
+
+    // Group by matchId
+    teams.forEach((team) => {
+      const matchId = team.matchId;
+      if (!matchMap[matchId]) matchMap[matchId] = [];
+      matchMap[matchId].push(team);
+    });
+
+    const rawRankMatrix = {}; // email => { 1st: x, 2nd: y }
+
+    for (const matchId in matchMap) {
+      const teamList = matchMap[matchId];
+
+      const userScores = teamList.map((team) => {
+        let total = 0;
+        team.players.forEach((player) => {
+          let multiplier = 1;
+          if (player.isCaptain) multiplier = 2;
+          else if (player.isViceCaptain) multiplier = 1.5;
+          total += player.points * multiplier;
+        });
+
+        return {
+          email: team.email,
+          totalPoints: total,
+        };
+      });
+
+      userScores.sort((a, b) => b.totalPoints - a.totalPoints);
+
+      userScores.forEach((user, index) => {
+        let rankLabel = `${index + 1}th`;
+        if (index === 0) rankLabel = "1st";
+        else if (index === 1) rankLabel = "2nd";
+        else if (index === 2) rankLabel = "3rd";
+
+        if (!rawRankMatrix[user.email]) rawRankMatrix[user.email] = {};
+        if (!rawRankMatrix[user.email][rankLabel])
+          rawRankMatrix[user.email][rankLabel] = 0;
+
+        rawRankMatrix[user.email][rankLabel]++;
+      });
+    }
+
+    // Now enrich with user info from `users` collection
+    const emails = Object.keys(rawRankMatrix);
+    const users = await User.find({ email: { $in: emails } });
+
+    const enrichedMatrix = users.map((user) => {
+      return {
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`,
+        image: user.img,
+        ranks: rawRankMatrix[user.email] || {},
+      };
+    });
+
+    enrichedMatrix.sort((a, b) => {
+      const aFirsts = a.ranks["1st"] || 0;
+      const bFirsts = b.ranks["1st"] || 0;
+      return bFirsts - aFirsts; // descending order
+    });
+
+    res.send({ data: enrichedMatrix });
+  } catch (err) {
+    console.error("Error generating leaderboard matrix:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 const mainController = {
   getAllSeries,
   createMatch,
@@ -2175,6 +2249,7 @@ const mainController = {
   getAllPredictionsByMatch,
   updateFantasyPoints,
   getDreamTeam,
+  getLeaderboardMatrix,
 };
 
 module.exports = mainController;

@@ -11,6 +11,7 @@ import { FantasyComponent } from './fantasy/fantasy.component';
 import { MATERIAL_MODULE } from 'src/app/core/constants/material';
 import { PreviewTeamComponent } from './fantasy/preview-team/preview-team.component';
 import { FantasyLeaderboardComponent } from './fantasy-leaderboard/fantasy-leaderboard.component';
+import { SeasonLeaderboardComponent } from './season-leaderboard/season-leaderboard.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { FantasyLeaderboardComponent } from './fantasy-leaderboard/fantasy-leade
     FantasyComponent,
     PreviewTeamComponent,
     FantasyLeaderboardComponent,
+    SeasonLeaderboardComponent,
   ],
   imports: [CommonModule, TournamentRoutingModule, ...MATERIAL_MODULE],
 })
