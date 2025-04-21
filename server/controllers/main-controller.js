@@ -1981,7 +1981,7 @@ const getDreamTeam = async (req, res) => {
 };
 
 function selectDreamTeam(players) {
-  // Sort players by points in descending order
+  // Sort players by points (highest first)
   const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
 
   // Initialize team and counters
@@ -1990,15 +1990,36 @@ function selectDreamTeam(players) {
   const roleCounts = {
     "WK-Batsman": 0,
     Batsman: 0,
-    Allrounder: 0, // Combined count for Batting and Bowling Allrounders
+    Allrounder: 0, // Combined count for Batting & Bowling Allrounders
     Bowler: 0,
   };
 
-  for (const player of sortedPlayers) {
-    // Check team limit (max 6 from one team)
-    if ((teamCounts[player.team] || 0) >= 6) {
-      continue;
+  // First, ensure at least 1 WK-Batsman is picked early
+  const wkPlayers = sortedPlayers.filter((p) => p.role === "WK-Batsman");
+  if (wkPlayers.length === 0) {
+    throw new Error("No wicket-keepers available in the list!");
+  }
+
+  // Try to pick at least 1 WK early (highest-point WK first)
+  for (const wk of wkPlayers) {
+    if (team.length >= 11) break;
+    if ((teamCounts[wk.team] || 0) < 6) {
+      team.push(wk);
+      teamCounts[wk.team] = (teamCounts[wk.team] || 0) + 1;
+      roleCounts["WK-Batsman"]++;
+      break; // Pick at least 1 WK
     }
+  }
+
+  // Now fill the rest of the team (11 players total)
+  for (const player of sortedPlayers) {
+    if (team.length >= 11) break;
+
+    // Skip if already in team (e.g., the WK we just added)
+    if (team.some((p) => p.id === player.id)) continue;
+
+    // Check team limit (max 6 from one team)
+    if ((teamCounts[player.team] || 0) >= 6) continue;
 
     const role = player.role;
     player.role = player.role.includes("Allrounder")
@@ -2025,30 +2046,95 @@ function selectDreamTeam(players) {
     team.push(player);
     teamCounts[player.team] = (teamCounts[player.team] || 0) + 1;
     roleCounts[roleForCounting]++;
-
-    // Stop when team has 11 players
-    if (team.length === 11) break;
   }
 
-  // Verify minimum requirements are met
+  // Final check: Ensure at least 1 WK, 2 batsmen, 1 all-rounder, 2 bowlers
   if (
     roleCounts["WK-Batsman"] < 1 ||
     roleCounts["Batsman"] < 2 ||
     roleCounts["Allrounder"] < 1 ||
     roleCounts["Bowler"] < 2
   ) {
-    console.warn("Minimum role requirements not fully met");
+    console.warn("Warning: Minimum role requirements not fully met!");
   }
 
-  // Sort team by points again to assign captain and vice-captain
+  // Sort team by points to assign captain & vice-captain
   team.sort((a, b) => b.points - a.points);
 
-  // Assign captain and vice-captain
+  // Assign captain (highest points) and vice-captain (2nd highest)
   if (team.length > 0) team[0].isCaptain = true;
   if (team.length > 1) team[1].isViceCaptain = true;
 
   return team;
 }
+
+// function selectDreamTeam(players) {
+//   // Sort players by points in descending order
+//   const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
+
+//   // Initialize team and counters
+//   const team = [];
+//   const teamCounts = {};
+//   const roleCounts = {
+//     "WK-Batsman": 0,
+//     Batsman: 0,
+//     Allrounder: 0, // Combined count for Batting and Bowling Allrounders
+//     Bowler: 0,
+//   };
+
+//   for (const player of sortedPlayers) {
+//     // Check team limit (max 6 from one team)
+//     if ((teamCounts[player.team] || 0) >= 6) {
+//       continue;
+//     }
+
+//     const role = player.role;
+
+//     let roleForCounting = role;
+
+//     // Treat both allrounder types as "Allrounder" for counting
+//     if (role === "Batting Allrounder" || role === "Bowling Allrounder") {
+//       roleForCounting = "Allrounder";
+//     }
+
+//     // Check role limits
+//     if (roleForCounting === "WK-Batsman" && roleCounts[roleForCounting] >= 4)
+//       continue;
+//     if (roleForCounting === "Batsman" && roleCounts[roleForCounting] >= 5)
+//       continue;
+//     if (roleForCounting === "Allrounder" && roleCounts[roleForCounting] >= 5)
+//       continue;
+//     if (roleForCounting === "Bowler" && roleCounts[roleForCounting] >= 5)
+//       continue;
+
+//     // Add player to team
+//     team.push(player);
+//     teamCounts[player.team] = (teamCounts[player.team] || 0) + 1;
+//     roleCounts[roleForCounting]++;
+
+//     // Stop when team has 11 players
+//     if (team.length === 11) break;
+//   }
+
+//   // Verify minimum requirements are met
+//   if (
+//     roleCounts["WK-Batsman"] < 1 ||
+//     roleCounts["Batsman"] < 2 ||
+//     roleCounts["Allrounder"] < 1 ||
+//     roleCounts["Bowler"] < 2
+//   ) {
+//     console.warn("Minimum role requirements not fully met");
+//   }
+
+//   // Sort team by points again to assign captain and vice-captain
+//   team.sort((a, b) => b.points - a.points);
+
+//   // Assign captain and vice-captain
+//   if (team.length > 0) team[0].isCaptain = true;
+//   if (team.length > 1) team[1].isViceCaptain = true;
+
+//   return team;
+// }
 
 // Usage
 // const bestTeam = selectBestTeam(playersArray);
