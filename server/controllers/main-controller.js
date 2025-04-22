@@ -2147,52 +2147,19 @@ const getLeaderboardMatrix = async (req, res) => {
 
     for (const team of teams) {
       const email = team.email;
-
-      // Calculate total points with captain (2x) and vice-captain (1.5x)
       const totalPoints = team.players.reduce((sum, p) => {
         const multiplier = p.isCaptain ? 2 : p.isViceCaptain ? 1.5 : 1;
         return sum + p.points * multiplier;
       }, 0);
 
-      if (!userMap.has(email)) {
-        userMap.set(email, []);
-      }
-
-      userMap.get(email).push({
-        matchId: team.matchId,
-        points: totalPoints,
-      });
+      if (!userMap.has(email)) userMap.set(email, []);
+      userMap.get(email).push({ matchId: team.matchId, points: totalPoints });
     }
 
-    // Get list of all matchIds
     const allMatchIds = [...new Set(teams.map((t) => t.matchId))];
-
-    // Map user email to their ranks per match
     const userStats = [];
 
     for (const [email, matches] of userMap.entries()) {
-      const rankPerMatch = {};
-
-      // For each match, get sorted users
-      for (const matchId of allMatchIds) {
-        const playersInMatch = [];
-
-        // Loop through all users to get who played in this match
-        for (const [userEmail, userMatches] of userMap.entries()) {
-          const match = userMatches.find((m) => m.matchId === matchId);
-          if (match) {
-            playersInMatch.push({ email: userEmail, points: match.points });
-          }
-        }
-
-        playersInMatch.sort((a, b) => b.points - a.points);
-
-        playersInMatch.forEach((p, index) => {
-          if (!rankPerMatch[p.email]) rankPerMatch[p.email] = [];
-          rankPerMatch[p.email].push(index + 1); // Position
-        });
-      }
-
       const ranks = {
         "1st": 0,
         "2nd": 0,
@@ -2201,50 +2168,96 @@ const getLeaderboardMatrix = async (req, res) => {
         "5th": 0,
         last: 0,
       };
+      const matchIdsByRank = {
+        "1st": [],
+        "2nd": [],
+        "3rd": [],
+        "4th": [],
+        "5th": [],
+        last: [],
+      };
 
-      const allRanks = rankPerMatch[email] || [];
+      for (const matchId of allMatchIds) {
+        const playersInMatch = [];
 
-      allRanks.forEach((rank, _, arr) => {
-        if (rank === 1) ranks["1st"]++;
-        else if (rank === 2) ranks["2nd"]++;
-        else if (rank === 3) ranks["3rd"]++;
-        else if (rank === 4) ranks["4th"]++;
-        else if (rank === 5) ranks["5th"]++;
-        else if (rank === Math.max(...arr)) ranks["last"]++;
-      });
+        for (const [userEmail, userMatches] of userMap.entries()) {
+          const match = userMatches.find((m) => m.matchId === matchId);
+          if (match) {
+            playersInMatch.push({ email: userEmail, points: match.points });
+          }
+        }
 
-      const totalMatches = allRanks.length;
+        playersInMatch.sort((a, b) => b.points - a.points);
+        const totalPlayers = playersInMatch.length;
 
-      const positionWeights = {
+        playersInMatch.forEach((player, index) => {
+          if (player.email === email) {
+            const position = index + 1;
+            if (position === 1) {
+              ranks["1st"]++;
+              matchIdsByRank["1st"].push(matchId);
+            } else if (position === 2) {
+              ranks["2nd"]++;
+              matchIdsByRank["2nd"].push(matchId);
+            } else if (position === 3) {
+              ranks["3rd"]++;
+              matchIdsByRank["3rd"].push(matchId);
+            } else if (position === 4) {
+              ranks["4th"]++;
+              matchIdsByRank["4th"].push(matchId);
+            } else if (position === 5) {
+              ranks["5th"]++;
+              matchIdsByRank["5th"].push(matchId);
+            } else if (position === totalPlayers) {
+              ranks["last"]++;
+              matchIdsByRank["last"].push(matchId);
+            }
+          }
+        });
+      }
+
+      const totalMatches = Object.values(ranks).reduce((a, b) => a + b, 0);
+      const weights = {
         "1st": 1,
         "2nd": 2,
         "3rd": 3,
         "4th": 4,
         "5th": 5,
-        last: 20, // assume 20th for last
+        last: 20,
       };
-
-      const weightedSum = Object.entries(ranks).reduce((sum, [rank, count]) => {
-        return sum + (positionWeights[rank] || 0) * count;
-      }, 0);
+      const weightedSum = Object.entries(ranks).reduce(
+        (sum, [rank, count]) => sum + (weights[rank] || 0) * count,
+        0
+      );
 
       const averagePosition = totalMatches
         ? +(weightedSum / totalMatches).toFixed(2)
         : 0;
 
       const userInfo = await User.findOne({ email });
-
       userStats.push({
-        name: `${userInfo.firstName} ${userInfo.lastName}`,
+        email,
+        name:
+          `${userInfo?.firstName || ""} ${userInfo?.lastName || ""}`.trim() ||
+          email,
         image: userInfo?.img || "",
         ranks,
+        matchIdsByRank,
         totalMatches,
         averagePosition,
       });
     }
 
-    // Sort by 1st rank desc
-    userStats.sort((a, b) => b.ranks["1st"] - a.ranks["1st"]);
+    // Sort by 1st, then 2nd, then 3rd, then lowest avg position
+    userStats.sort((a, b) => {
+      if (b.ranks["1st"] !== a.ranks["1st"])
+        return b.ranks["1st"] - a.ranks["1st"];
+      if (b.ranks["2nd"] !== a.ranks["2nd"])
+        return b.ranks["2nd"] - a.ranks["2nd"];
+      if (b.ranks["3rd"] !== a.ranks["3rd"])
+        return b.ranks["3rd"] - a.ranks["3rd"];
+      return a.averagePosition - b.averagePosition;
+    });
 
     res.send({ data: userStats });
   } catch (err) {

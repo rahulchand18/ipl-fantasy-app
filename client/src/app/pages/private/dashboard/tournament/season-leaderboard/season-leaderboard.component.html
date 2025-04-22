@@ -8,6 +8,7 @@
           <th>User</th>
           <th *ngFor="let rank of rankColumns">{{ rank }}</th>
           <th>Total Matches</th>
+          <th>Avg. Position</th>
         </tr>
       </thead>
       <tbody>
@@ -35,11 +36,17 @@
               silver: rank === '2nd',
               bronze: rank === '3rd'
             }"
+            [title]="
+              user.matchIdsByRank && user.matchIdsByRank[rank]?.length
+                ? 'Matches: ' + user.matchIdsByRank[rank].join(', ')
+                : 'No matches'
+            "
           >
             {{ user.ranks[rank] || 0 }}
           </td>
 
           <td>{{ user.totalMatches }}</td>
+          <td>{{ user.averagePosition }}</td>
         </tr>
       </tbody>
     </table>

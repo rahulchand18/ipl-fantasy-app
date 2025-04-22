@@ -82,3 +82,7 @@
     font-size: 0.9rem;
   }
 }
+.leaderboard-table td[title] {
+  cursor: help;
+  position: relative;
+}
