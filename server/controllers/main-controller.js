@@ -2142,9 +2142,17 @@ function selectDreamTeam(players) {
 
 const getLeaderboardMatrix = async (req, res) => {
   try {
-    const teams = await FantasyTeamModel.find({});
+    const completedMatches = await Match.find({ history: true }).select("id");
+    const completedMatchIds = completedMatches.map((m) => m.id);
+
+    // Filter teams to only those with completed matchIds
+    const teams = await FantasyTeamModel.find({
+      matchId: { $in: completedMatchIds },
+    });
+
     const userMap = new Map();
 
+    // Step 1: Map each email to their matches and totalPoints
     for (const team of teams) {
       const email = team.email;
       const totalPoints = team.players.reduce((sum, p) => {
@@ -2153,80 +2161,69 @@ const getLeaderboardMatrix = async (req, res) => {
       }, 0);
 
       if (!userMap.has(email)) userMap.set(email, []);
-      userMap.get(email).push({ matchId: team.matchId, points: totalPoints });
+      userMap.get(email).push({
+        matchId: team.matchId,
+        points: totalPoints,
+      });
     }
 
     const allMatchIds = [...new Set(teams.map((t) => t.matchId))];
     const userStats = [];
 
-    for (const [email, matches] of userMap.entries()) {
-      const ranks = {
-        "1st": 0,
-        "2nd": 0,
-        "3rd": 0,
-        "4th": 0,
-        "5th": 0,
-        last: 0,
-      };
-      const matchIdsByRank = {
+    // Step 2: For each match, get the rank of each player
+    const matchRankings = {};
+
+    for (const matchId of allMatchIds) {
+      const playersInMatch = [];
+
+      for (const [email, matches] of userMap.entries()) {
+        const match = matches.find((m) => m.matchId === matchId);
+        if (match) {
+          playersInMatch.push({ email, points: match.points });
+        }
+      }
+
+      playersInMatch.sort((a, b) => b.points - a.points);
+
+      matchRankings[matchId] = playersInMatch.map((p, index) => ({
+        email: p.email,
+        position: index + 1,
+        totalPlayers: playersInMatch.length,
+      }));
+    }
+
+    // Step 3: Build user stats from all matches
+    for (const [email] of userMap.entries()) {
+      const positionStats = {
         "1st": [],
         "2nd": [],
         "3rd": [],
         "4th": [],
         "5th": [],
         last: [],
+        allPositions: [],
       };
 
       for (const matchId of allMatchIds) {
-        const playersInMatch = [];
+        const match = matchRankings[matchId];
+        const result = match.find((m) => m.email === email);
+        if (!result) continue;
 
-        for (const [userEmail, userMatches] of userMap.entries()) {
-          const match = userMatches.find((m) => m.matchId === matchId);
-          if (match) {
-            playersInMatch.push({ email: userEmail, points: match.points });
-          }
-        }
+        const { position, totalPlayers } = result;
+        positionStats.allPositions.push(position);
 
-        playersInMatch.sort((a, b) => b.points - a.points);
-        const totalPlayers = playersInMatch.length;
-
-        playersInMatch.forEach((player, index) => {
-          if (player.email === email) {
-            const position = index + 1;
-            if (position === 1) {
-              ranks["1st"]++;
-              matchIdsByRank["1st"].push(matchId);
-            } else if (position === 2) {
-              ranks["2nd"]++;
-              matchIdsByRank["2nd"].push(matchId);
-            } else if (position === 3) {
-              ranks["3rd"]++;
-              matchIdsByRank["3rd"].push(matchId);
-            } else if (position === 4) {
-              ranks["4th"]++;
-              matchIdsByRank["4th"].push(matchId);
-            } else if (position === 5) {
-              ranks["5th"]++;
-              matchIdsByRank["5th"].push(matchId);
-            } else if (position === totalPlayers) {
-              ranks["last"]++;
-              matchIdsByRank["last"].push(matchId);
-            }
-          }
-        });
+        if (position === 1) positionStats["1st"].push(matchId);
+        else if (position === 2) positionStats["2nd"].push(matchId);
+        else if (position === 3) positionStats["3rd"].push(matchId);
+        else if (position === 4) positionStats["4th"].push(matchId);
+        else if (position === 5) positionStats["5th"].push(matchId);
+        else if (position === totalPlayers) positionStats["last"].push(matchId);
       }
 
-      const totalMatches = Object.values(ranks).reduce((a, b) => a + b, 0);
-      const weights = {
-        "1st": 1,
-        "2nd": 2,
-        "3rd": 3,
-        "4th": 4,
-        "5th": 5,
-        last: 20,
-      };
-      const weightedSum = Object.entries(ranks).reduce(
-        (sum, [rank, count]) => sum + (weights[rank] || 0) * count,
+      const totalMatches = positionStats.allPositions.length;
+
+      const weightedSum = positionStats.allPositions.reduce(
+        (sum, pos) => sum + pos,
         0
       );
 
@@ -2235,29 +2232,38 @@ const getLeaderboardMatrix = async (req, res) => {
         : 0;
 
       const userInfo = await User.findOne({ email });
+
       userStats.push({
-        email,
-        name:
-          `${userInfo?.firstName || ""} ${userInfo?.lastName || ""}`.trim() ||
-          email,
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
         image: userInfo?.img || "",
-        ranks,
-        matchIdsByRank,
+        ranks: {
+          "1st": positionStats["1st"].length,
+          "2nd": positionStats["2nd"].length,
+          "3rd": positionStats["3rd"].length,
+          "4th": positionStats["4th"].length,
+          "5th": positionStats["5th"].length,
+          last: positionStats["last"].length,
+        },
+        matchIds: {
+          "1st": positionStats["1st"],
+          "2nd": positionStats["2nd"],
+          "3rd": positionStats["3rd"],
+          "4th": positionStats["4th"],
+          "5th": positionStats["5th"],
+          last: positionStats["last"],
+        },
         totalMatches,
         averagePosition,
       });
     }
 
-    // Sort by 1st, then 2nd, then 3rd, then lowest avg position
-    userStats.sort((a, b) => {
-      if (b.ranks["1st"] !== a.ranks["1st"])
-        return b.ranks["1st"] - a.ranks["1st"];
-      if (b.ranks["2nd"] !== a.ranks["2nd"])
-        return b.ranks["2nd"] - a.ranks["2nd"];
-      if (b.ranks["3rd"] !== a.ranks["3rd"])
-        return b.ranks["3rd"] - a.ranks["3rd"];
-      return a.averagePosition - b.averagePosition;
-    });
+    // Sort leaderboard: prioritize 1st > 2nd > 3rd
+    userStats.sort(
+      (a, b) =>
+        b.ranks["1st"] - a.ranks["1st"] ||
+        b.ranks["2nd"] - a.ranks["2nd"] ||
+        b.ranks["3rd"] - a.ranks["3rd"]
+    );
 
     res.send({ data: userStats });
   } catch (err) {

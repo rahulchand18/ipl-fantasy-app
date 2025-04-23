@@ -6,9 +6,8 @@
       <thead>
         <tr>
           <th>User</th>
-          <th *ngFor="let rank of rankColumns">{{ rank }}</th>
           <th>Total Matches</th>
-          <th>Avg. Position</th>
+          <th *ngFor="let rank of rankColumns">{{ rank }}</th>
         </tr>
       </thead>
       <tbody>
@@ -27,6 +26,7 @@
               <div class="name">{{ user.name }}</div>
             </div>
           </td>
+          <td>{{ user.totalMatches }}</td>
 
           <td
             *ngFor="let rank of rankColumns"
@@ -37,16 +37,13 @@
               bronze: rank === '3rd'
             }"
             [title]="
-              user.matchIdsByRank && user.matchIdsByRank[rank]?.length
-                ? 'Matches: ' + user.matchIdsByRank[rank].join(', ')
+              user.matchIds && user.matchIds[rank]?.length
+                ? 'Matches: ' + user.matchIds[rank].join(', ')
                 : 'No matches'
             "
           >
             {{ user.ranks[rank] || 0 }}
           </td>
-
-          <td>{{ user.totalMatches }}</td>
-          <td>{{ user.averagePosition }}</td>
         </tr>
       </tbody>
     </table>
