@@ -142,6 +142,7 @@ router.get("/getSummary", mainController.getSummary);
 router.get("/getNotifications/:email", mainController.getNotifications);
 
 router.get("/leaderboard-matrix", mainController.getLeaderboardMatrix);
+router.post("/importScoreCard", mainController.importScoreCard);
 
 router.post(
   "/uploadPhoto/:email",

@@ -1238,7 +1238,7 @@ function removeLastTwoWords(text) {
   return words.join(" "); // Join the remaining words back into a string
 }
 
-const importScoreCard = async () => {
+const importScoreCard = async (req, res) => {
   try {
     const activeMatches = await Match.find({
       history: false,
@@ -1249,7 +1249,7 @@ const importScoreCard = async () => {
       console.log(match.id);
       const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${randomAPIKey}&id=${match.matchId}`;
       const response = await axios.get(url);
-      const matchResponse = response.data?.data;
+      const matchResponse = response.data;
       if (!matchResponse) {
         console.log("No data found", randomAPIKey, response);
         break;
@@ -1298,6 +1298,7 @@ const importScoreCard = async () => {
             sixes: player["6s"],
             fours: player["4s"],
             strikeRate: player.sr,
+            dismissal: player["dismissal-text"],
           };
           players.push(playerData);
         }
@@ -1352,8 +1353,14 @@ const importScoreCard = async () => {
         await Scorecard.updateOne({ id: existing.id }, { $set: matchData });
       }
     }
+    if (res) {
+      res.send("ok");
+    }
   } catch (error) {
     console.log(error.stack);
+    if (res) {
+      res.send(error.stack);
+    }
   }
 };
 
@@ -1885,7 +1892,7 @@ const getPlayersPoints = (players, match) => {
       if (player.runs >= 50) points += 10; // 50-run bonus
       if (player.runs >= 100) points += 25; // 100-run bonus
     }
-    if (player.runs === 0) {
+    if (player.runs === 0 && player.dismissal !== "not-out") {
       if (player.balls === 1) {
         points -= 4;
       } else {
@@ -2308,6 +2315,7 @@ const mainController = {
   updateFantasyPoints,
   getDreamTeam,
   getLeaderboardMatrix,
+  importScoreCard,
 };
 
 module.exports = mainController;

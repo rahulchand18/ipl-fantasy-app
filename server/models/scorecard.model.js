@@ -8,6 +8,9 @@ const playerSchema = {
   name: {
     type: String,
   },
+  dismissal: {
+    type: String,
+  },
   runs: {
     type: Number,
   },
