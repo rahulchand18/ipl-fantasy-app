@@ -1892,7 +1892,7 @@ const getPlayersPoints = (players, match) => {
       if (player.runs >= 50) points += 10; // 50-run bonus
       if (player.runs >= 100) points += 25; // 100-run bonus
     }
-    if (player.runs === 0 && player.dismissal !== "not-out") {
+    if (player.runs === 0 && player.dismissal !== "not out") {
       if (player.balls === 1) {
         points -= 4;
       } else {
