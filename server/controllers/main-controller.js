@@ -1249,7 +1249,7 @@ const importScoreCard = async (req, res) => {
       console.log(match.id);
       const url = `https://api.cricapi.com/v1/match_scorecard?apikey=${randomAPIKey}&id=${match.matchId}`;
       const response = await axios.get(url);
-      const matchResponse = response.data;
+      const matchResponse = response.data?.data;
       if (!matchResponse) {
         console.log("No data found", randomAPIKey, response);
         break;
