@@ -1889,8 +1889,9 @@ const getPlayersPoints = (players, match) => {
     // Batting Points
     if (player.runs) {
       points += player.runs; // 1 point per run
-      if (player.runs >= 50) points += 10; // 50-run bonus
-      if (player.runs >= 100) points += 25; // 100-run bonus
+      if (player.runs >= 100) {
+        points += 25; // 100-run bonus
+      } else if (player.runs >= 50) points += 10; // 50-run bonus
     }
     if (player.runs === 0 && player.dismissal !== "not out") {
       if (player.balls === 1) {
@@ -1899,15 +1900,33 @@ const getPlayersPoints = (players, match) => {
         points -= 2; // Duck penalty
       }
     }
+
     if (player.fours) points += player.fours * 2; // 1 point per boundary
     if (player.sixes) points += player.sixes * 4; // 2 points per six
+
+    if (players.balls && players.balls >= 5) {
+      if (player.strikeRate <= 80) points -= 6;
+      else if (player.strikeRate > 80 && player.strikeRate <= 100) {
+        points -= 4;
+      } else if (player.strikeRate > 100 && player.strikeRate <= 120) {
+        points -= 2;
+      } else if (player.strikeRate > 140 && player.strikeRate <= 160) {
+        points += 2;
+      } else if (player.strikeRate > 160 && player.strikeRate <= 180) {
+        points += 4;
+      } else if (player.strikeRate > 180 && player.strikeRate <= 200) {
+        points += 6;
+      } else if (player.strikeRate > 200) {
+        points += 8;
+      }
+    }
 
     // Bowling Points
     if (player.wickets) {
       points += player.wickets * 25; // 25 points per wicket
-      if (player.wickets >= 3) points += 10; // 3-wicket bonus
       if (player.wickets >= 5) points += 25; // 5-wicket bonus
-    } else {
+      else if (player.wickets >= 3) points += 10; // 3-wicket bonus
+    } else if (player.overs && players.overs >= 2) {
       points -= 2; // No wicket penalty
     }
 
