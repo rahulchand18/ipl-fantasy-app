@@ -375,6 +375,20 @@ const updateCompleteStatus = async (req, res) => {
   }
 };
 
+const updateNoResult = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updated = await Match.findOneAndUpdate(
+      { _id: id },
+      { $set: { history: true, noResult: true } }
+    );
+    return res.send(updated);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+};
+
 async function calculateBalance(matchId) {
   // const matchWinner = await PointsTable.find({ matchId }).sort({
   //   total: -1,
@@ -1904,7 +1918,7 @@ const getPlayersPoints = (players, match) => {
     if (player.fours) points += player.fours * 2; // 1 point per boundary
     if (player.sixes) points += player.sixes * 4; // 2 points per six
 
-    if (players.balls && players.balls >= 5) {
+    if (player.balls && player.balls >= 5) {
       if (player.strikeRate <= 80) points -= 6;
       else if (player.strikeRate > 80 && player.strikeRate <= 100) {
         points -= 4;
@@ -2168,7 +2182,10 @@ function selectDreamTeam(players) {
 
 const getLeaderboardMatrix = async (req, res) => {
   try {
-    const completedMatches = await Match.find({ history: true }).select("id");
+    const completedMatches = await Match.find({
+      history: true,
+      noResult: false,
+    }).select("id");
     const completedMatchIds = completedMatches.map((m) => m.id);
 
     // Filter teams to only those with completed matchIds
@@ -2335,6 +2352,7 @@ const mainController = {
   getDreamTeam,
   getLeaderboardMatrix,
   importScoreCard,
+  updateNoResult,
 };
 
 module.exports = mainController;

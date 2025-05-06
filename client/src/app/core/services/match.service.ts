@@ -68,6 +68,9 @@ export class MatchService {
   ): Observable<any> {
     return this.http.put(`/updateCompleteStatus/${id}`, { history, matchId });
   }
+  updateNoResult(id: string): Observable<any> {
+    return this.http.put(`/updateNoResult/${id}`);
+  }
   getPrediction(matchId: string, email: string): Observable<any> {
     return this.http.get(`/getPrediction/${matchId}/${email}`);
   }

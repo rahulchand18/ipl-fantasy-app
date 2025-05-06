@@ -28,7 +28,7 @@ export class TournamentConfigurationComponent implements OnInit {
   team2: any;
   editFormValue: any;
   updateMatch = false;
-  history = false
+  history = false;
   constructor(
     private route: ActivatedRoute,
     private matchService: MatchService,
@@ -97,12 +97,14 @@ export class TournamentConfigurationComponent implements OnInit {
   }
 
   getAllSeries(history?: boolean, fullList?: boolean) {
-    this.updateMatch = false
-    this.matchService.getAllSeries({ history, fullList, viewAsAdmin: true }).subscribe({
-      next: (res) => {
-        this.allSeries = res.data;
-      },
-    });
+    this.updateMatch = false;
+    this.matchService
+      .getAllSeries({ history, fullList, viewAsAdmin: true })
+      .subscribe({
+        next: (res) => {
+          this.allSeries = res.data;
+        },
+      });
   }
 
   addMostCatchesField() {
@@ -193,7 +195,13 @@ export class TournamentConfigurationComponent implements OnInit {
       });
   }
 
+  updateNoResult(id: string) {
+    this.matchService.updateNoResult(id).subscribe(() => {
+      this.getAllSeries();
+    });
+  }
+
   calculate(matchId: string) {
-    this.matchService.calculate(matchId).subscribe((res) => { });
+    this.matchService.calculate(matchId).subscribe((res) => {});
   }
 }

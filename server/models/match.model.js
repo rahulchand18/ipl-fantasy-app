@@ -27,6 +27,10 @@ const MatchSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    noResult: {
+      type: Boolean,
+      default: false,
+    },
     status: {
       type: String,
     },

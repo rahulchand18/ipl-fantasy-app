@@ -115,6 +115,7 @@ router.get("/getAllTeamInfo/", mainController.getAllTeamInfo);
 router.put("/updateActiveStatus/:id", mainController.updateActiveStatus);
 router.put("/updateMatchStatus/:id", mainController.updateMatchStatus);
 router.put("/updateCompleteStatus/:id", mainController.updateCompleteStatus);
+router.put("/updateNoResult/:id", mainController.updateNoResult);
 router.get("/getPrediction/:matchId/:email", mainController.getPrediction);
 router.get("/getPlayers/:matchId", mainController.getPlayers);
 router.get(
