@@ -1,0 +1,59 @@
+<h1 matDialogTitle>Player Details</h1>
+<div matDialogContent class="p-3">
+  <form [formGroup]="playerForm">
+    <div class="row">
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>id</mat-label>
+          <input type="text" matInput formControlName="id" />
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>Name</mat-label>
+          <input type="text" matInput formControlName="name" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>role</mat-label>
+          <input type="text" matInput formControlName="role" />
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>battingStyle</mat-label>
+          <input type="text" matInput formControlName="battingStyle" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>bowlingStyle</mat-label>
+          <input type="text" matInput formControlName="bowlingStyle" />
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>country</mat-label>
+          <input type="text" matInput formControlName="country" />
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <mat-form-field class="w-100" appearance="outline">
+          <mat-label>playerImg</mat-label>
+          <input type="text" matInput formControlName="playerImg" />
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</div>
+<mat-dialog-actions>
+  <button mat-flat-button mat-dialog-close="true">Close</button>
+  <button mat-flat-button color="primary" (click)="saveDetails()">Save</button>
+</mat-dialog-actions>

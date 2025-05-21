@@ -1,0 +1,38 @@
+<div class="container d-flex flex-wrap">
+  <mat-card
+    *ngFor="let team of teams; let number = index; trackBy: trackByFn"
+    class="p-3 w-50 mt-2"
+  >
+    <mat-card-title>
+      {{ number + 1 }}.
+      <img [src]="team.img" class="border rounded-circle mx-2" alt="" />
+      <strong>
+        {{ team.teamName }}
+      </strong>
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="openPlayerForm(team, false)"
+      >
+        + Add Player
+      </button>
+    </mat-card-title>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <div *ngFor="let player of team.players; let i = index" class="mt-2">
+        {{ i + 1 }}.
+        <img
+          class="mx-1"
+          [src]="player.playerImg"
+          class="border rounded-circle"
+          alt=""
+          style="width: 30px"
+        />
+        <span class="mx-2">{{ player.name }}</span>
+        <button mat-flat-button (click)="openPlayerForm(team, true, player)">
+          <mat-icon class="fs-5">edit</mat-icon>Edit
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

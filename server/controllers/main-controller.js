@@ -2315,6 +2315,19 @@ const getLeaderboardMatrix = async (req, res) => {
   }
 };
 
+const addPlayers = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const playerData = req.body;
+    await Teams.findByIdAndUpdate(_id, {
+      $push: { players: playerData },
+    });
+    return res.status(200).send({ message: "Added" });
+  } catch (error) {
+    return res.status(500).json(err.message);
+  }
+};
+
 const mainController = {
   getAllSeries,
   createMatch,
@@ -2353,6 +2366,7 @@ const mainController = {
   getLeaderboardMatrix,
   importScoreCard,
   updateNoResult,
+  addPlayers,
 };
 
 module.exports = mainController;

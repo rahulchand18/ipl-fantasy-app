@@ -1,259 +1,398 @@
 <div class="container border p-3 bg-light shadow-lg rounded" *ngIf="tournament">
-    <!-- Tournament Name -->
-    <h2 class="text-center text-primary mb-4">{{ tournament.name }}</h2>
-    <mat-divider></mat-divider>
+  <!-- Tournament Name -->
+  <h2 class="text-center text-primary mb-4">{{ tournament.name }}</h2>
+  <mat-divider></mat-divider>
 
-    <!-- Players Section -->
-    <div class="players my-4">
-        <h3 class="text-secondary mb-3">Players</h3>
-        <mat-list *ngIf="tournament.players?.length" class="bg-white p-3 rounded shadow-sm">
-            <mat-list-item *ngFor="let player of tournament.players; let i = index"
-                class="d-flex justify-content-between align-items-center py-2">
-                <span class="fw-bold">{{ i + 1 }}. {{ player.playerName }}</span>
-                <span *ngIf="player.status === 'pending'" class="w-20">
-                    <button mat-raised-button color="primary" (click)="updateStatus(true, player.email)">
-                        Accept
-                    </button>
-                    <button mat-raised-button color="warn">Reject</button>
-                </span>
-                <span *ngIf="player.status !== 'pending'" class="badge bg-success">{{
-                    player.status
-                    }}</span>
-            </mat-list-item>
-        </mat-list>
-        <div class="alert alert-danger text-center mt-3" *ngIf="!tournament.players || !tournament.players.length">
-            No players joined yet.
-        </div>
+  <!-- Players Section -->
+  <div class="players my-4">
+    <h3 class="text-secondary mb-3">Players</h3>
+    <mat-list
+      *ngIf="tournament.players?.length"
+      class="bg-white p-3 rounded shadow-sm"
+    >
+      <mat-list-item
+        *ngFor="let player of tournament.players; let i = index"
+        class="d-flex justify-content-between align-items-center py-2"
+      >
+        <span class="fw-bold">{{ i + 1 }}. {{ player.playerName }}</span>
+        <span *ngIf="player.status === 'pending'" class="w-20">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="updateStatus(true, player.email)"
+          >
+            Accept
+          </button>
+          <button mat-raised-button color="warn">Reject</button>
+        </span>
+        <span *ngIf="player.status !== 'pending'" class="badge bg-success">{{
+          player.status
+        }}</span>
+      </mat-list-item>
+    </mat-list>
+    <div
+      class="alert alert-danger text-center mt-3"
+      *ngIf="!tournament.players || !tournament.players.length"
+    >
+      No players joined yet.
     </div>
-    <mat-divider></mat-divider>
+  </div>
+  <mat-divider></mat-divider>
+  <button mat-raised-button color="primary" routerLink="/u/tournament/teams">
+    Show Teams
+  </button>
+  <mat-divider></mat-divider>
 
-    <!-- Matches Section -->
-    <div class="matches my-4">
-        <div class="container">
-            <h3 class="text-secondary mb-3">Matches</h3>
-            <button mat-flat-button color="primary" class="mb-3" (click)="
+  <!-- Matches Section -->
+  <div class="matches my-4">
+    <div class="container">
+      <h3 class="text-secondary mb-3">Matches</h3>
+      <button
+        mat-flat-button
+        color="primary"
+        class="mb-3"
+        (click)="
           createMatch = !createMatch;
           createMatch ? createMatchForm() : (updateMatch = false)
-        ">
-                {{ !createMatch ? "Add Match" : "Cancel" }}
-            </button>
-            <button mat-flat-button color="primary" class="mb-3 mx-3"
-                (click)="history = !history; getAllSeries(history, false)">
-                {{ history ? "Current" : "History" }}
-            </button>
+        "
+      >
+        {{ !createMatch ? "Add Match" : "Cancel" }}
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        class="mb-3 mx-3"
+        (click)="history = !history; getAllSeries(history, false)"
+      >
+        {{ history ? "Current" : "History" }}
+      </button>
 
-            <!-- Match Form -->
-            <div class="form border p-3 bg-white rounded shadow-sm" *ngIf="createMatch">
-                <form [formGroup]="matchForm" class="example-form" (ngSubmit)="saveMatch(matchForm)">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="ID" formControlName="id" />
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Date" formControlName="date" />
-                            </mat-form-field>
-                        </div>
-                    </div>
+      <!-- Match Form -->
+      <div
+        class="form border p-3 bg-white rounded shadow-sm"
+        *ngIf="createMatch"
+      >
+        <form
+          [formGroup]="matchForm"
+          class="example-form"
+          (ngSubmit)="saveMatch(matchForm)"
+        >
+          <div class="row">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input matInput placeholder="ID" formControlName="id" />
+              </mat-form-field>
+            </div>
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input matInput placeholder="Date" formControlName="date" />
+              </mat-form-field>
+            </div>
+          </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Status" formControlName="status" />
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <mat-label>Team 1</mat-label>
-                                <mat-select formControlName="t1">
-                                    <mat-option *ngFor="let team of allTeams" [value]="team.shortname">
-                                        {{ team.shortname }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                    </div>
+          <div class="row">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input matInput placeholder="Status" formControlName="status" />
+              </mat-form-field>
+            </div>
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <mat-label>Team 1</mat-label>
+                <mat-select formControlName="t1">
+                  <mat-option
+                    *ngFor="let team of allTeams"
+                    [value]="team.shortname"
+                  >
+                    {{ team.shortname }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <mat-label>Team 2</mat-label>
-                                <mat-select formControlName="t2">
-                                    <mat-option *ngFor="let team of allTeams" [value]="team.shortname">
-                                        {{ team.shortname }}
-                                    </mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Team 1 Score" formControlName="t1s" />
-                            </mat-form-field>
-                        </div>
-                    </div>
+          <div class="row">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <mat-label>Team 2</mat-label>
+                <mat-select formControlName="t2">
+                  <mat-option
+                    *ngFor="let team of allTeams"
+                    [value]="team.shortname"
+                  >
+                    {{ team.shortname }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input
+                  matInput
+                  placeholder="Team 1 Score"
+                  formControlName="t1s"
+                />
+              </mat-form-field>
+            </div>
+          </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Team 2 Score" formControlName="t2s" />
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Toss Winner" formControlName="tossWinner" />
-                            </mat-form-field>
-                        </div>
-                    </div>
+          <div class="row">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input
+                  matInput
+                  placeholder="Team 2 Score"
+                  formControlName="t2s"
+                />
+              </mat-form-field>
+            </div>
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input
+                  matInput
+                  placeholder="Toss Winner"
+                  formControlName="tossWinner"
+                />
+              </mat-form-field>
+            </div>
+          </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Match Winner" formControlName="matchWinner" />
-                            </mat-form-field>
-                        </div>
-                        <div class="col-md-6">
-                            <mat-form-field appearance="outline" class="w-100 mb-3">
-                                <input matInput placeholder="Man of the Match" formControlName="manOfTheMatch" />
-                            </mat-form-field>
-                        </div>
-                    </div>
+          <div class="row">
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input
+                  matInput
+                  placeholder="Match Winner"
+                  formControlName="matchWinner"
+                />
+              </mat-form-field>
+            </div>
+            <div class="col-md-6">
+              <mat-form-field appearance="outline" class="w-100 mb-3">
+                <input
+                  matInput
+                  placeholder="Man of the Match"
+                  formControlName="manOfTheMatch"
+                />
+              </mat-form-field>
+            </div>
+          </div>
 
-                    <!-- Dynamic Form Arrays -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div formArrayName="mostCatches" class="p-3">
-                                <h5>Most Catches</h5>
-                                <button mat-button color="primary" type="button" (click)="addMostCatchesField()">
-                                    +
-                                </button>
-                                <ng-container *ngFor="
+          <!-- Dynamic Form Arrays -->
+          <div class="row">
+            <div class="col-md-6">
+              <div formArrayName="mostCatches" class="p-3">
+                <h5>Most Catches</h5>
+                <button
+                  mat-button
+                  color="primary"
+                  type="button"
+                  (click)="addMostCatchesField()"
+                >
+                  +
+                </button>
+                <ng-container
+                  *ngFor="
                     let assetItem of mostCatchesArray.controls;
                     let i = index
-                  ">
-                                    <mat-form-field appearance="outline" class="w-100 mb-2">
-                                        <input matInput placeholder="Most Catches" [formControlName]="i" />
-                                    </mat-form-field>
-                                </ng-container>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div formArrayName="mostRuns" class="p-3">
-                                <h5>Most Runs</h5>
-                                <button mat-button color="primary" type="button" (click)="addMostRunsField()">
-                                    +
-                                </button>
-                                <ng-container *ngFor="
+                  "
+                >
+                  <mat-form-field appearance="outline" class="w-100 mb-2">
+                    <input
+                      matInput
+                      placeholder="Most Catches"
+                      [formControlName]="i"
+                    />
+                  </mat-form-field>
+                </ng-container>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div formArrayName="mostRuns" class="p-3">
+                <h5>Most Runs</h5>
+                <button
+                  mat-button
+                  color="primary"
+                  type="button"
+                  (click)="addMostRunsField()"
+                >
+                  +
+                </button>
+                <ng-container
+                  *ngFor="
                     let assetItem of mostRunsArray.controls;
                     let i = index
-                  ">
-                                    <mat-form-field appearance="outline" class="w-100 mb-2">
-                                        <input matInput placeholder="Most Runs" [formControlName]="i" />
-                                    </mat-form-field>
-                                </ng-container>
-                            </div>
-                        </div>
-                    </div>
+                  "
+                >
+                  <mat-form-field appearance="outline" class="w-100 mb-2">
+                    <input
+                      matInput
+                      placeholder="Most Runs"
+                      [formControlName]="i"
+                    />
+                  </mat-form-field>
+                </ng-container>
+              </div>
+            </div>
+          </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div formArrayName="mostWickets" class="p-3">
-                                <h5>Most Wickets</h5>
-                                <button mat-button color="primary" type="button" (click)="addMostWicketsField()">
-                                    +
-                                </button>
-                                <ng-container *ngFor="
+          <div class="row">
+            <div class="col-md-6">
+              <div formArrayName="mostWickets" class="p-3">
+                <h5>Most Wickets</h5>
+                <button
+                  mat-button
+                  color="primary"
+                  type="button"
+                  (click)="addMostWicketsField()"
+                >
+                  +
+                </button>
+                <ng-container
+                  *ngFor="
                     let assetItem of mostWicketsArray.controls;
                     let i = index
-                  ">
-                                    <mat-form-field appearance="outline" class="w-100 mb-2">
-                                        <input matInput placeholder="Most Wickets" [formControlName]="i" />
-                                    </mat-form-field>
-                                </ng-container>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div formArrayName="mostSixes" class="p-3">
-                                <h5>Most Sixes</h5>
-                                <button mat-button color="primary" type="button" (click)="addMostSixesField()">
-                                    +
-                                </button>
-                                <ng-container *ngFor="
+                  "
+                >
+                  <mat-form-field appearance="outline" class="w-100 mb-2">
+                    <input
+                      matInput
+                      placeholder="Most Wickets"
+                      [formControlName]="i"
+                    />
+                  </mat-form-field>
+                </ng-container>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div formArrayName="mostSixes" class="p-3">
+                <h5>Most Sixes</h5>
+                <button
+                  mat-button
+                  color="primary"
+                  type="button"
+                  (click)="addMostSixesField()"
+                >
+                  +
+                </button>
+                <ng-container
+                  *ngFor="
                     let assetItem of mostSixesArray.controls;
                     let i = index
-                  ">
-                                    <mat-form-field appearance="outline" class="w-100 mb-2">
-                                        <input matInput placeholder="Most Sixes" [formControlName]="i" />
-                                    </mat-form-field>
-                                </ng-container>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button mat-flat-button color="primary" class="w-100">Save</button>
-                </form>
+                  "
+                >
+                  <mat-form-field appearance="outline" class="w-100 mb-2">
+                    <input
+                      matInput
+                      placeholder="Most Sixes"
+                      [formControlName]="i"
+                    />
+                  </mat-form-field>
+                </ng-container>
+              </div>
             </div>
+          </div>
 
-            <!-- Match Cards -->
-            <div class="row match-container">
-                <div class="col-md-6 col-lg-4 mb-3" *ngFor="let match of allSeries">
-                    <mat-card class="p-3 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <button mat-button (click)="
+          <button mat-flat-button color="primary" class="w-100">Save</button>
+        </form>
+      </div>
+
+      <!-- Match Cards -->
+      <div class="row match-container">
+        <div class="col-md-6 col-lg-4 mb-3" *ngFor="let match of allSeries">
+          <mat-card class="p-3 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <button
+                mat-button
+                (click)="
                   editFormValue = match;
                   updateMatch = true;
                   createMatchForm();
                   createMatch = true
-                ">
-                                Edit
-                            </button>
-                            <span class="text-muted">{{
-                                match.date | date : "dd MMMM, yyyy"
-                                }}</span>
-                        </div>
-                        <div class="team-info mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <img class="circle mr-2" height="30px" [src]="match.t1img" alt="" />
-                                <span>{{ match.t1 }}</span>
-                                <b class="ml-auto">{{ match.t1s }}</b>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <img class="circle mr-2" height="30px" [src]="match.t2img" alt="" />
-                                <span>{{ match.t2 }}</span>
-                                <b class="ml-auto">{{ match.t2s }}</b>
-                            </div>
-                        </div>
-                        <div class="text-center mb-3">
-                            <span class="badge bg-info">{{ match.status }}</span>
-                        </div>
-                        <div class="mt-2">
-                            <button class="mt-2 w-100" mat-flat-button color="primary"
-                                (click)="updateActiveStatus(match._id, !match.active)">
-                                {{ match.active ? "Deactivate" : "Activate" }}
-                            </button>
-                            <button class="mt-2 w-100" mat-flat-button color="primary"
-                                (click)="updateMatchStatus(match._id, !match.matchStarted)"
-                                *ngIf="!match.history && !match.matchStarted">
-                                Start
-                            </button>
-                            <button class="mt-2 w-100" mat-flat-button color="primary" (click)="calculate(match.id)">
-                                Calculate
-                            </button>
-                            <button class="mt-2 w-100" mat-flat-button color="primary"
-                                (click)=" updateCompleteStatus(match._id, !match.history, match.id) "
-                                *ngIf="!match.history">
-                                Complete
-                            </button>
-
-                            <button class="mt-2 w-100" mat-flat-button color="primary"
-                                (click)="updateNoResult(match._id)" *ngIf="!match.history">
-                                No Result
-                            </button>
-                        </div>
-                    </mat-card>
-                </div>
+                "
+              >
+                Edit
+              </button>
+              <span class="text-muted">{{
+                match.date | date : "dd MMMM, yyyy"
+              }}</span>
             </div>
+            <div class="team-info mb-3">
+              <div class="d-flex align-items-center mb-2">
+                <img
+                  class="circle mr-2"
+                  height="30px"
+                  [src]="match.t1img"
+                  alt=""
+                />
+                <span>{{ match.t1 }}</span>
+                <b class="ml-auto">{{ match.t1s }}</b>
+              </div>
+              <div class="d-flex align-items-center">
+                <img
+                  class="circle mr-2"
+                  height="30px"
+                  [src]="match.t2img"
+                  alt=""
+                />
+                <span>{{ match.t2 }}</span>
+                <b class="ml-auto">{{ match.t2s }}</b>
+              </div>
+            </div>
+            <div class="text-center mb-3">
+              <span class="badge bg-info">{{ match.status }}</span>
+            </div>
+            <div class="mt-2">
+              <button
+                class="mt-2 w-100"
+                mat-flat-button
+                color="primary"
+                (click)="updateActiveStatus(match._id, !match.active)"
+              >
+                {{ match.active ? "Deactivate" : "Activate" }}
+              </button>
+              <button
+                class="mt-2 w-100"
+                mat-flat-button
+                color="primary"
+                (click)="updateMatchStatus(match._id, !match.matchStarted)"
+                *ngIf="!match.history && !match.matchStarted"
+              >
+                Start
+              </button>
+              <button
+                class="mt-2 w-100"
+                mat-flat-button
+                color="primary"
+                (click)="calculate(match.id)"
+              >
+                Calculate
+              </button>
+              <button
+                class="mt-2 w-100"
+                mat-flat-button
+                color="primary"
+                (click)="
+                  updateCompleteStatus(match._id, !match.history, match.id)
+                "
+                *ngIf="!match.history"
+              >
+                Complete
+              </button>
+
+              <button
+                class="mt-2 w-100"
+                mat-flat-button
+                color="primary"
+                (click)="updateNoResult(match._id)"
+                *ngIf="!match.history"
+              >
+                No Result
+              </button>
+            </div>
+          </mat-card>
         </div>
+      </div>
     </div>
+  </div>
 </div>

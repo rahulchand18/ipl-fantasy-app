@@ -131,4 +131,7 @@ export class MatchService {
   getLeaderBoardMatrix(): Observable<any> {
     return this.http.get(`/leaderboard-matrix`);
   }
+  addPlayers(_id: string, playerData: any): Observable<any> {
+    return this.http.post(`/addPlayers/${_id}`, playerData);
+  }
 }

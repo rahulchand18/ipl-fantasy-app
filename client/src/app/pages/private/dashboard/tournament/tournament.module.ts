@@ -12,6 +12,9 @@ import { MATERIAL_MODULE } from 'src/app/core/constants/material';
 import { PreviewTeamComponent } from './fantasy/preview-team/preview-team.component';
 import { FantasyLeaderboardComponent } from './fantasy-leaderboard/fantasy-leaderboard.component';
 import { SeasonLeaderboardComponent } from './season-leaderboard/season-leaderboard.component';
+import { TeamsComponent } from './teams/teams.component';
+import { PlayerFormComponent } from './teams/player-form/player-form.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -24,7 +27,15 @@ import { SeasonLeaderboardComponent } from './season-leaderboard/season-leaderbo
     PreviewTeamComponent,
     FantasyLeaderboardComponent,
     SeasonLeaderboardComponent,
+    TeamsComponent,
+    PlayerFormComponent,
   ],
-  imports: [CommonModule, TournamentRoutingModule, ...MATERIAL_MODULE],
+  imports: [
+    CommonModule,
+    TournamentRoutingModule,
+    ...MATERIAL_MODULE,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
 })
-export class TournamentModule { }
+export class TournamentModule {}
